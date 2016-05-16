@@ -26,6 +26,8 @@ try{
                 'orderid' => $obj->orderid
             ]);
             $crd->call();
+            $key = "card-ref-id";
+            echo $crd->getResponse()->$key;
         }
         catch(\Garan24\Gateway\Aruispay\Exception $e){
             print("Exception in AruisPay gateway Create Card reference:".$e->getMessage());

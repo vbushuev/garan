@@ -38,6 +38,7 @@ $connector::setLogger("default");
 try{
     //echo $obj->getRequest()->__toString();//call();
     $connector->call();
+    $connector->redirect($connector->getResponse()->getRedirectUrl());
 }
 catch(\Garan24\Gateway\Aruispay\Exception $e){
     print("Exception in AruisPay gateway:".$e->getMessage());

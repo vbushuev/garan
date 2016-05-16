@@ -3,6 +3,8 @@
 .env.php
 .env
 
+arc/
+
 # =========================
 # Operating System Files
 # =========================

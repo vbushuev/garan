@@ -3,6 +3,7 @@ namespace Garan24;
 class Garan24{
     protected static $logger = "laravel";
     protected static $_debug = true;
+    protected static $DB = [];
     public static function setLogger($l="laravel"){
         self::$logger = $l;
     }

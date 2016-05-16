@@ -10,13 +10,13 @@ class Deal extends Garan24dbObject{
     }
     protected function sync(){
         if(!isset($this->id))return;
-        $this->execute("select * from gr1_deals where id = ".$this->id);
+        $this->execute("select * from ".$this->_dbdata["prefix"]."deals where id = ".$this->id);
     }
     public function __set($nc,$v){
         $n=strtolower($nc);
         parent::__set($nc,$v);
-        if(in_array($n,["status","amount","currency"])){
-            
+        if($n=="status"){
+            $this->prepare("update ".$this->_dbdata["prefix"]."deals set status='".$v."' where id = ".$this->id);
         }
     }
 };

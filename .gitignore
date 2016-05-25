@@ -3,6 +3,7 @@
 .env.php
 .env
 
+test/*
 arc/
 
 # =========================
@@ -56,3 +57,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 *.log
+*.xml
+
+test/

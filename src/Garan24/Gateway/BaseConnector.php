@@ -1,7 +1,7 @@
 <?php
 namespace Garan24\Gateway;
 use \Garan24\Garan24 as Garan24;
-use \Garan24\Gateway\Aruispay\Exception  as Garan24GatewayAruispayException;
+use \Garan24\Gateway\Exception  as Garan24GatewayException;
 use \Garan24\Gateway\HTTPRequest  as HTTPRequest;
 use \Garan24\Gateway\HTTPResponse  as HTTPResponse;
 class BaseConnector extends \Garan24\Garan24 implements \Garan24\Interfaces\IConnector{
@@ -39,13 +39,13 @@ class BaseConnector extends \Garan24\Garan24 implements \Garan24\Interfaces\ICon
         self::debug($data);
         $this->_response_data = $data;
         if(!isset($this->_response_data["type"])){
-            throw new Garan24GatewayAruispayException(
+            throw new Garan24GatewayException(
                 "Unknown message",
                 500
             );
         }
         if(in_array(trim($this->_response_data["status"]),['declined'])){
-            throw new Garan24GatewayAruispayException(
+            throw new Garan24GatewayException(
                 isset($this->_response_data["error-message"])?$this->_response_data["error-message"]:"Unknown message",
                 isset($this->_response_data["error-code"])?$this->_response_data["error-code"]:500
             );
@@ -63,10 +63,10 @@ class BaseConnector extends \Garan24\Garan24 implements \Garan24\Interfaces\ICon
         $this->build();
         $this->_response_data = $this->query($this->_method,$this->_request_data);
         if(!isset($this->_response_data["type"])){
-            throw new Garan24GatewayAruispayException("Error in response. Wrong format",500);
+            throw new Garan24GatewayException("Error in response. Wrong format",500);
         }
         if(in_array(trim($this->_response_data["type"]),["validation-error","error"])){
-            throw new Garan24GatewayAruispayException(
+            throw new Garan24GatewayException(
                 isset($this->_response_data["error-message"])?$this->_response_data["error-message"]:"Unknown message",
                 isset($this->_response_data["error-code"])?$this->_response_data["error-code"]:500
             );

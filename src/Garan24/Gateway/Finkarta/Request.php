@@ -21,7 +21,7 @@ class Request{
     }
     public function build(){
         $x = Garan24::obj2xml($this->_data);
-        $file_name = "f-karta-request-".date('Y-m-d-H-mi-s-u')."_req.xml";
+        $file_name = "f-karta-request-".date('Y-m-d-His-u')."_req.xml";
         file_put_contents($file_name,$x->asXML());
         exec("\"c:\\www\\garan\\test\\fkarta\\stribog.exe\" -x \"" . $file_name . "\"", $output);
         $this->_file = "hashed_".$file_name;

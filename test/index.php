@@ -59,7 +59,7 @@ $data = [
         ]
     ]
 ];
-$request = new \Garan24\Gateway\Finkarta\Request(["data"=>$data]);
+$request = new \Garan24\Gateway\Finkarta\Request(["url"=>"http://testrequest.f-karta.ru/","data"=>$data]);
 $fkarta = new \Garan24\Gateway\Finkarta\Connector();
 try{
     //echo $obj->getRequest()->__toString();//call();

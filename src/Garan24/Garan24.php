@@ -31,7 +31,7 @@ class Garan24{
         $str="";
         if(is_array($mix)){
             foreach($mix as $k=>$v){
-                $str.="\t{$k} = ".rtrim($v)."\n";
+                $str.="\t{$k} = ".is_string($v)?rtrim($v):self::obj2str($v)."\n";
             }
             $str="array [\n".$str."]";
         }

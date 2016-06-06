@@ -11,7 +11,7 @@ class Connector implements \Garan24\Interfaces\IConnector{
         return $response;
     }
     public function query($url,$data = null){
-        $fp=fopen('../curl-'.date("Y-m-d").'.log', 'wa');
+        $fp=fopen('../curl-'.date("Y-m-d").'.log', 'a+');
         $curlOptions = [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,

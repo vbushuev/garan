@@ -8,8 +8,15 @@
             "email": "v.bushuev.co@gmail.com"
         }
     ],
+    "autoload": {
+        "psr-4": {
+            "Garan24\\": "src/Garan24"
+        }
+    },
     "minimum-stability": "dev",
-    "require": {},
+    "require": {
+        "woothemes/woocommerce-api": "^2.0"
+    },
     "repositories":[
         {
             "type":"git",

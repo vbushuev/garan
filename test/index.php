@@ -1,9 +1,9 @@
 <?php
-//include("../vendor/autoload.php");
+
 require_once("test.php");
 $str = '{
-    "x_secret":"cs_89f95570b4bd18759b8501cd16e4756ab03a544c",
-    "x_key":"ck_7575374a55d17741f3999e8c98725c6471030d6c",
+    "x_secret":"cs_0c12a03d43781fd418696af84e2a5519ef0b829e",
+    "x_key":"ck_7b5f8404d88a0d2aa32cda366bcb2ad1a06b6ae3",
     "version":"1.0",
     "response_url":"https://youronlinestore.com/response",
     "order":
@@ -50,7 +50,8 @@ $str = '{
 }
 ';
 $o =  new Garan24\Deal\Deal($str);
-echo ($o->check(false)?"checked":"no required fields")."\n";
-echo ($o)."\n";
+//echo ($o->check(false)?"checked":"no required fields")."\n";
+echo $o->sync();
+//echo ($o)."\n";
 
 ?>

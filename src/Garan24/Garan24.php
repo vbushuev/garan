@@ -3,7 +3,13 @@ namespace Garan24;
 class Garan24{
     protected static $logger = "laravel";
     protected static $_debug = true;
-    protected static $DB = [];
+    public static $DB = [
+        "host"=>"localhost",
+        "user"=>"u0173919_vbu01",
+        "pass"=>"0aS8cj2G",
+        "schema"=>"u0173919_grn01",
+        "prefix"=>"gr1_"
+    ];
     public static function setLogger($l="laravel"){
         self::$logger = $l;
     }
@@ -89,72 +95,72 @@ class Garan24{
        // loop through the data passed in.
        foreach( $data as $key => $value ) {
            // no numeric keys in our xml please!
-       $numeric = false;
-       if ( is_numeric( $key ) ) {
-           $numeric = 1;
-           $key = $rootNodeName;
-       }
+           $numeric = false;
+           if ( is_numeric( $key ) ) {
+               $numeric = 1;
+               $key = $rootNodeName;
+           }
 
-       // delete any char not allowed in XML element names
-       $key = preg_replace('/[^a-z0-9\-\_\.\:]/i', '', $key);
+           // delete any char not allowed in XML element names
+           $key = preg_replace('/[^a-z0-9\-\_\.\:]/i', '', $key);
 
-       //check to see if there should be an attribute added (expecting to see _id_)
-       $attrs = false;
+           //check to see if there should be an attribute added (expecting to see _id_)
+           $attrs = false;
 
-       //if there are attributes in the array (denoted by attr_**) then add as XML attributes
-       if ( is_array( $value ) ) {
-           foreach($value as $i => $v ) {
-               $attr_start = false;
-               $attr_start = stripos($i, 'attr_');
-               if ($attr_start === 0) {
-                   $attrs[substr($i, 5)] = $v; unset($value[$i]);
+           //if there are attributes in the array (denoted by attr_**) then add as XML attributes
+           if ( is_array( $value ) ) {
+               foreach($value as $i => $v ) {
+                   $attr_start = false;
+                   $attr_start = stripos($i, 'attr_');
+                   if ($attr_start === 0) {
+                       $attrs[substr($i, 5)] = $v; unset($value[$i]);
+                   }
                }
+           }
+
+
+           // if there is another array found recursively call this function
+           if ( is_array( $value ) ) {
+
+               if ( Garan24::is_assoc( $value ) || $numeric ) {
+
+                   // older SimpleXMLElement Libraries do not have the addChild Method
+                   if (method_exists('SimpleXMLElement','addChild'))
+                   {
+                       $node = $xml->addChild( $key, null, 'http://www.lcc.arts.ac.uk/' );
+                       if ($attrs) {
+                           foreach($attrs as $key => $attribute) {
+                               $node->addAttribute($key, $attribute);
+                           }
+                       }
+                   }
+
+               }else{
+                   $node =$xml;
+               }
+
+               // recrusive call.
+               if ( $numeric ) $key = 'anon';
+               Garan24::toXml( $value, $key, $node );
+           } else {
+
+                   // older SimplXMLElement Libraries do not have the addChild Method
+                   if (method_exists('SimpleXMLElement','addChild'))
+                   {
+                       $childnode = $xml->addChild( $key, $value, 'http://www.lcc.arts.ac.uk/' );
+                       if ($attrs) {
+                           foreach($attrs as $key => $attribute) {
+                               $childnode->addAttribute($key, $attribute);
+                           }
+                       }
+                   }
            }
        }
 
+       // pass back as unformatted XML
+       //return $xml->asXML('data.xml');
 
-       // if there is another array found recursively call this function
-       if ( is_array( $value ) ) {
-
-           if ( Garan24::is_assoc( $value ) || $numeric ) {
-
-               // older SimpleXMLElement Libraries do not have the addChild Method
-               if (method_exists('SimpleXMLElement','addChild'))
-               {
-                   $node = $xml->addChild( $key, null, 'http://www.lcc.arts.ac.uk/' );
-                   if ($attrs) {
-                       foreach($attrs as $key => $attribute) {
-                           $node->addAttribute($key, $attribute);
-                       }
-                   }
-               }
-
-           }else{
-               $node =$xml;
-           }
-
-           // recrusive call.
-           if ( $numeric ) $key = 'anon';
-           Garan24::toXml( $value, $key, $node );
-       } else {
-
-               // older SimplXMLElement Libraries do not have the addChild Method
-               if (method_exists('SimpleXMLElement','addChild'))
-               {
-                   $childnode = $xml->addChild( $key, $value, 'http://www.lcc.arts.ac.uk/' );
-                   if ($attrs) {
-                       foreach($attrs as $key => $attribute) {
-                           $childnode->addAttribute($key, $attribute);
-                       }
-                   }
-               }
-       }
-   }
-
-   // pass back as unformatted XML
-   //return $xml->asXML('data.xml');
-
-   // if you want the XML to be formatted, use the below instead to return the XML
+       // if you want the XML to be formatted, use the below instead to return the XML
        $doc = new DOMDocument('1.0');
        $doc->preserveWhiteSpace = false;
        @$doc->loadXML( Garan24::fixCDATA($xml->asXML()) );
@@ -174,13 +180,13 @@ class Garan24{
        return $string;
    }
 
-/**
-* Convert an XML document to a multi dimensional array
-* Pass in an XML document (or SimpleXMLElement object) and this recrusively loops through and builds a representative array
-*
-* @param string $xml - XML document - can optionally be a SimpleXMLElement object
-* @return array ARRAY
-*/
+    /**
+    * Convert an XML document to a multi dimensional array
+    * Pass in an XML document (or SimpleXMLElement object) and this recrusively loops through and builds a representative array
+    *
+    * @param string $xml - XML document - can optionally be a SimpleXMLElement object
+    * @return array ARRAY
+    */
     public static function toArray( $xml ) {
        if ( is_string( $xml ) ) $xml = new SimpleXMLElement( $xml );
        $children = $xml->children();

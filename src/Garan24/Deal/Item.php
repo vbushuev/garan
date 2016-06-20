@@ -19,21 +19,24 @@ class Item extends G24Object{
         $this->dimensions = new Dimensions($this->dimensions);
         $this->variations = new Variations($this->variations);
     }
-    protected function sync(){
-        $resource = new WC_API_Client_Resource_Products($this->wc_client);
+    public function sync(){
+        $resource = new \WC_API_Client_Resource_Products($this->wc_client);
         $resp=null;
         try{
             $resp = $resource->get($this->product_id);
         }
-        catch(WC_API_Client_Exception $e){
+        catch(\WC_API_Client_Exception $e){
             $item = $this->_jdata;
-            unset(
-                $item["product_id"],
+            /*unset(
                 $item["product_url"],
                 $item["product_img"],
                 $item["dimensions"]
-            );
+            );*/
             $resp = $resource->create(["product"=> $item]);
+            $this->product_id = $resp->product->id;
+        }
+        catch(\WC_API_Client_HTTP_Exception $e){
+            echo $resp;
         }
         $this->product_id = $resp->product->id;
     }

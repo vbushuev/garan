@@ -16,8 +16,8 @@ class Item extends G24Object{
             "regular_price",
             "variations"
         ],$ii,$wc);
-        $this->dimensions = new Dimensions($this->dimensions);
-        $this->variations = new Variations($this->variations);
+        if(isset($this->dimensions)) $this->dimensions = new Dimensions($this->dimensions);
+        if(isset($this->variations)) $this->variations = new Variations($this->variations);
     }
     public function sync(){
         $resource = new \WC_API_Client_Resource_Products($this->wc_client);

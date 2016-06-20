@@ -49,9 +49,11 @@ $str = '{
     }
 }
 ';
-$o =  new Garan24\Deal\Deal($str);
+$o =  new Garan24\Deal\Deal();
+//$o->byJson($str);
+echo $o->byId(495);
 //echo ($o->check(false)?"checked":"no required fields")."\n";
-echo $o->sync();
-//echo ($o)."\n";
+
+echo ($o)."\n";
 
 ?>

@@ -3,8 +3,12 @@ namespace Garan24;
 class Object {
     protected $_jdata=[];
     public function __construct($a="{}"){
-        $this->_jdata = array_change_key_case(json_decode($a,true),CASE_LOWER);
+        $this->parse($a);
     }
+    public function parse($a){
+        if(!is_null($a)) $this->_jdata = array_change_key_case(json_decode($a,true),CASE_LOWER);
+    }
+
     public function ___toString(){
         return $this->toJson();
     }

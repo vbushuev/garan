@@ -32,8 +32,10 @@ class DBConnector{
     }
     protected function _prefixed($sql){
         $r = $sql;
-        $r = preg_replace("/from\s+([a-z0-9_]+)/im","from ".$this->_dbdata["prefix"]."$1",$r);
-        $r = preg_replace("/join\s+([a-z0-9_]+)/im","join ".$this->_dbdata["prefix"]."$1",$r);
+        $r = preg_replace("/(from|join|into|update)\s+([a-z0-9_]+)/im","$1 ".$this->_dbdata["prefix"]."$2",$r);
+        //$r = preg_replace("/join\s+([a-z0-9_]+)/im","join ".$this->_dbdata["prefix"]."$1",$r);
+        //$r = preg_replace("/into\s+([a-z0-9_]+)/im","into ".$this->_dbdata["prefix"]."$1",$r);
+        //$r = preg_replace("/update\s+([a-z0-9_]+)/im","update ".$this->_dbdata["prefix"]."$1",$r);
         GARAN24::debug($r);
         return $r;
     }
@@ -43,6 +45,17 @@ class DBConnector{
         $ret = $result->fetch_array(MYSQLI_ASSOC);
         $result->close();
         return $ret;
+    }
+    public function insert($sql){
+        if(!$this->_dbdata["connected"]) $this->connect();
+        $sql = $this->_prefixed($sql);
+        if(!$this->_dbdata["conn"]->query($sql)){
+            throw new StoreException($sql." execution error: "
+                .$this->_dbdata["conn"]->error);
+        }
+    }
+    public function update($sql){
+        $this->insert($sql);
     }
     public function exists($sql){
         $result = $this->prepare($sql);

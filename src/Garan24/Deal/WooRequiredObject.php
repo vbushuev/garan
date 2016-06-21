@@ -1,5 +1,6 @@
 <?php
 namespace Garan24\Deal;
+use \Garan24\Garan24 as Garan24;
 use \WC_API_Client as WC_API_Client;
 use \WC_API_Client_Exception as WC_API_Client_Exception;
 use \WC_API_Client_HTTP_Exception as WC_API_Client_HTTP_Exception;
@@ -22,7 +23,7 @@ class WooRequiredObject extends \Garan24\RequiredObject {
         ];
         try {
             $this->wc_client = new WC_API_Client( $domain, $consumer_key,$consumer_secret, $options );
-            echo "Connected to WC\n";
+            Garan24::debug("Connected to WC\n");
         }
         catch ( Exception $e ) {
             $resp["code"] = $e->getCode();

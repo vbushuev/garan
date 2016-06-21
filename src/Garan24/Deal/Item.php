@@ -14,7 +14,10 @@ class Item extends G24Object{
             "weight",
             "dimensions",
             "regular_price",
-            "variations"
+            "variations",
+            "images",
+            "_links",
+            "external_url"
         ],$ii,$wc);
         if(isset($this->dimensions)) $this->dimensions = new Dimensions($this->dimensions);
         if(isset($this->variations)) $this->variations = new Variations($this->variations);

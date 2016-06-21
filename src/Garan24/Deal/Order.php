@@ -1,6 +1,7 @@
 <?php
 namespace Garan24\Deal;
 use \Garan24\Deal\WooRequiredObject as G24Object;
+use \Garan24\Garan24 as Garan24;
 class Order extends G24Object{
     public function __construct($a="{}",$wc){
         parent::__construct(
@@ -35,6 +36,7 @@ class Order extends G24Object{
         }
         $resource = new \WC_API_Client_Resource_Orders($this->wc_client);
         $resp = $resource->get($this->id);
+        Garan24::debug("Getted order is:". json_encode($resp->order));
         $this->_jdata = json_decode(json_encode($resp->order),true);
         if(isset($this->line_items)){
             $items = [];

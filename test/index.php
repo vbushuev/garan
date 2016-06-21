@@ -50,9 +50,9 @@ $str = '{
 }
 ';
 $o =  new Garan24\Deal\Deal();
-$o->byJson($str);
-$o->sync();
-//echo $o->byId(495);
+//$o->byJson($str);
+//$o->sync();
+echo $o->byId(500);
 //echo ($o->check(false)?"checked":"no required fields")."\n";
 /*$o->update(["customer_id"=>2,"address"=>[
     "first_name"=> "John",

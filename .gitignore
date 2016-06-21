@@ -5,6 +5,7 @@
 
 test/*
 arc/
+test/index.php
 
 # =========================
 # Operating System Files

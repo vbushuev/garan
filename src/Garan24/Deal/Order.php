@@ -42,7 +42,7 @@ class Order extends G24Object{
         if(isset($this->line_items)){
             $items = [];
             foreach($this->line_items as $item){
-                $i = new Item($item,$wc);
+                $i = new Item($item,$this->wc_client);
                 array_push($items, $i);
             }
             $this->items = $items;
@@ -56,7 +56,7 @@ class Order extends G24Object{
         if(isset($this->line_items)){
             $items = [];
             foreach($this->line_items as $item){
-                $i = new Item($item,$wc);
+                $i = new Item($item,$this->wc_client);
                 array_push($items, $i);
             }
             $this->items = $items;

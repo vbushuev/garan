@@ -50,10 +50,11 @@ $str = '{
 }
 ';
 $o =  new Garan24\Deal\Deal();
-//$o->byJson($str);
-echo $o->byId(495);
+$o->byJson($str);
+$o->sync();
+//echo $o->byId(495);
 //echo ($o->check(false)?"checked":"no required fields")."\n";
-$o->update(["customer_id"=>2,"address"=>[
+/*$o->update(["customer_id"=>2,"address"=>[
     "first_name"=> "John",
     "last_name"=> "Doe",
     "address_1"=> "969 Market",
@@ -64,7 +65,7 @@ $o->update(["customer_id"=>2,"address"=>[
     "country"=> "US",
     "email"=> "john.doe@example.com",
     "phone"=> "(555) 555-5555"
-]]);
-echo ($o)."\n";
+]]);*/
+print_r ($o->order->getProducts());
 
 ?>

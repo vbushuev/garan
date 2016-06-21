@@ -28,10 +28,16 @@ class Item extends G24Object{
         catch(\WC_API_Client_Exception $e){
             $item = $this->_jdata;
             /*unset(
-                $item["product_url"],
+                ,
                 $item["product_img"],
                 $item["dimensions"]
             );*/
+            $item["type"]="external";
+            $item["images"]=[[
+                'src'=>$item["product_img"],
+                'position'=>0
+            ]];
+            $item["external_url"] = $item["product_url"];
             $resp = $resource->create(["product"=> $item]);
             $this->product_id = $resp->product->id;
         }

@@ -27,17 +27,14 @@ class Order extends G24Object{
             array_push($data["line_items"],$item->toArray());
         }
         $resp=$resource->create($data);
-        echo ("Order is : ". json_encode($resp->order));
         $this->id= $resp->order->id;
     }
     public function get(){
         if(!isset($this->id)){
-            echo ("Order id is missing.");
             return false;
         }
         $resource = new \WC_API_Client_Resource_Orders($this->wc_client);
         $resp = $resource->get($this->id);
-        echo ("Order is : ". $resp->http->response->body);
         $this->_jdata = json_decode(json_encode($resp->order),true);
         if(isset($this->line_items)){
             $items = [];
@@ -51,7 +48,6 @@ class Order extends G24Object{
     public function update($data){
         $resource = new \WC_API_Client_Resource_Orders($this->wc_client);
         $resp = $resource->update($this->id,$data);
-        echo ("Order is : ". $resp->http->response->body);
         $this->_jdata = json_decode(json_encode($resp->order),true);
         if(isset($this->line_items)){
             $items = [];
@@ -61,6 +57,15 @@ class Order extends G24Object{
             }
             $this->items = $items;
         }
+    }
+    public function getProducts(){
+        if(!isset($this->items)) return [];
+        $items = [];
+        foreach($this->items as $item){
+            $i = $item->toArray();
+            array_push($items, $i);
+        }
+        return $items;
     }
 };
 ?>

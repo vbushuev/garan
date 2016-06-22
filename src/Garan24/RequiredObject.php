@@ -44,10 +44,11 @@ class RequiredObject extends Object {
         foreach($out as $k=>$v){
             if(is_array($v)){
                 $a = [];
-                foreach ($v as $value) {
+                foreach ($v as $n=>$value) {
                     if(is_object($value)&& $value instanceof RequiredObject){
                         array_push($a,$value->toArray());
                     }
+                    else $a[$n]=$value;
                 }
                 $out[$k]=$a;
             }

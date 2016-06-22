@@ -10,6 +10,9 @@ class WooRequiredObject extends \Garan24\RequiredObject {
         parent::__construct($r,$a);
         $this->wc_client = is_null($wc)?$this->wc_client:$wc;
     }
+    public function getWc(){
+        return $this->wc_client;
+    }
     protected function initWC($key,$secret){
         $domain = "https://garan24.ru";
         $consumer_key = $key;//"ck_8ff71be2b15d1dddbe939fb30e7fd0dfc6419ca2";

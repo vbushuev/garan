@@ -42,6 +42,7 @@ class Order extends G24Object{
             $items = [];
             foreach($this->line_items as $item){
                 $i = new Item($item,$this->wc_client);
+                $i->sync();
                 array_push($items, $i);
             }
             $this->items = $items;

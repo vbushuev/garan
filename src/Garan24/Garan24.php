@@ -1,7 +1,6 @@
 <?php
 namespace Garan24;
 class Garan24{
-    protected static $logger = "laravel";
     protected static $_debug = true;
     public static $DB = [
         "host"=>"localhost",
@@ -10,9 +9,6 @@ class Garan24{
         "schema"=>"u0173919_grn01",
         "prefix"=>"gr1_"
     ];
-    public static function setLogger($l="laravel"){
-        self::$logger = $l;
-    }
     public static function setDebugMode($b = true){
         self::$_debug=$b;
     }
@@ -37,14 +33,15 @@ class Garan24{
         $str="";
         if(is_array($mix)){
             foreach($mix as $k=>$v){
-                $str.="\t{$k} = ".is_string($v)?rtrim($v):self::obj2str($v)."\n";
+                $str.="\t{$k} = ".self::obj2str($v)."\n";
             }
             $str="array [\n".$str."]";
         }
         elseif (is_object($mix)) {
             $mix = json_decode(json_encode($mix),true);
             foreach($mix as $k=>$v){
-                $str.="\t{$k} = {$v}\n";
+                $str.="\t{$k} = ".self::obj2str($v)."\n";
+
             }
             $str="object [\n".$str."]";
         }

@@ -33,6 +33,10 @@ class Customer extends G24Object{
             echo $resp;
         }
     }
+    public function update($data){
+        $resp = $this->wc_client->customers->update($this->id,$data);
+        $this->_jdata = array_merge($this->_jdata,json_decode(json_encode($resp->customer),true));
+    }
     protected function create(){
         $resp = $this->wc_client->customers->create(["customer"=> [
             "email"=>$this->email,
@@ -42,15 +46,19 @@ class Customer extends G24Object{
         $this->_jdata = array_merge($this->_jdata,json_decode(json_encode($resp->customer),true));
     }
     protected function getCustomer(){
-        $sql = "select u.id ";
+        $sql = "select u.id,u.user_email,um.meta_value,u.id as `customer_id`";
         $sql.= "from users u";
         $sql.= " join usermeta um on u.id = um.user_id and um.meta_key='billing_phone'";
-        $sql.= " where u.user_email = '".$this->email."'";
-        $sql.= " and um.meta_value = '".$this->phone."'";
+        if(isset($this->email)&&isset($this->phone)){
+            $sql.= " where u.user_email = '".$this->email."'";
+            $sql.= " and um.meta_value = '".$this->phone."'";
+        }
+        elseif (isset($this->id)) {
+            $sql.= " where u.id = '".$this->id."'";
+        }
         $user = $this->db->select($sql);
         Garan24::debug("User is : ". json_encode($user));
-        $this->id = $user["id"];
-        $this->customer_id = $user["id"];
+        $this->_jdata = $user;
     }
 };
 ?>

@@ -37,7 +37,7 @@ class Order extends G24Object{
         $resource = new \WC_API_Client_Resource_Orders($this->wc_client);
         $resp = $resource->get($this->id);
         Garan24::debug("Getted order is:". json_encode($resp->order));
-        $this->_jdata = json_decode(json_encode($resp->order),true);
+        $this->_jdata = array_merge($this->_jdata,json_decode(json_encode($resp->order),true));
         if(isset($this->line_items)){
             $items = [];
             foreach($this->line_items as $item){
@@ -51,11 +51,12 @@ class Order extends G24Object{
     public function update($data){
         $resource = new \WC_API_Client_Resource_Orders($this->wc_client);
         $resp = $resource->update($this->id,$data);
-        $this->_jdata = json_decode(json_encode($resp->order),true);
+        $this->_jdata = array_merge($this->_jdata,json_decode(json_encode($resp->order),true));
         if(isset($this->line_items)){
             $items = [];
             foreach($this->line_items as $item){
                 $i = new Item($item,$this->wc_client);
+                $i->sync();
                 array_push($items, $i);
             }
             $this->items = $items;

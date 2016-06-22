@@ -1,5 +1,6 @@
 <?php
 namespace Garan24\Deal;
+use \Garan24\Deal\Customer as Customer;
 use \Garan24\Deal\WooRequiredObject as G24Object;
 use \Garan24\Store\DBConnector as DBConnector;
 use \Garan24\Store\Exception as StoreException;
@@ -76,38 +77,25 @@ class Deal extends G24Object{
             $this->db->update($sql);
             $this->order->update(["customer_id"=>$data["customer_id"]]);
         }
-        else if( isset($data["address"])){
-            $this->order->update(["shipping_address"=>$data["address"]]);
+        else if( isset($data["billing"]) ){
+            $addr = $data["billing"];
+            $addr["last_name"] = $data['fio']['last'];
+            $addr["first_name"] = $data['fio']['first'];
+            $this->order->update(["shipping_address"=>$addr]);
+            $cust = $this->getCustomer();
+            $cust->update([
+                "last_name"=>$data['fio']['last'],
+                "first_name"=>$data['fio']['first'],
+                "billing_address" => $addr,
+                "shiping_address" => $addr
+            ]);
         }
-        /*
-        "payment_details"=> [
-            "method_id"=> "garan24",
-            "method_title"=> "Direct Bank Transfer",
-            "paid"=> true
-        ],
-        "billing_address"=> [
-            "first_name"=> "John",
-            "last_name"=> "Doe",
-            "address_1"=> "969 Market",
-            "address_2"=> "",
-            "city"=> "San Francisco",
-            "state"=> "CA",
-            "postcode"=> "94103",
-            "country"=> "US",
-            "email"=> "john.doe@example.com",
-            "phone"=> "(555) 555-5555"
-        ],
-        "shipping_address"=> [
-            "first_name"=> "John",
-            "last_name"=> "Doe",
-            "address_1"=> "969 Market",
-            "address_2"=> "",
-            "city"=> "San Francisco",
-            "state"=> "CA",
-            "postcode"=> "94103",
 
-        */
-
+    }
+    public function getCustomer(){
+        $cust = new Customer('{"id":"'.$this->order->customer_id.'"}',$this->wc_client);
+        $cust->sync();
+        return $cust;
     }
     protected function getShop(){
         $sql = "select s.id,s.name,s.link,s.description,s.api_key_id,wak.user_id from woocommerce_api_keys wak";

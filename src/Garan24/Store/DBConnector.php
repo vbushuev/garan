@@ -36,7 +36,6 @@ class DBConnector{
         //$r = preg_replace("/join\s+([a-z0-9_]+)/im","join ".$this->_dbdata["prefix"]."$1",$r);
         //$r = preg_replace("/into\s+([a-z0-9_]+)/im","into ".$this->_dbdata["prefix"]."$1",$r);
         //$r = preg_replace("/update\s+([a-z0-9_]+)/im","update ".$this->_dbdata["prefix"]."$1",$r);
-        GARAN24::debug($r);
         return $r;
     }
     public function select($sql){

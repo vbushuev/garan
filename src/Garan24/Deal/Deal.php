@@ -67,6 +67,7 @@ class Deal extends G24Object{
         Garan24::debug("Deal is : ". json_encode($this->deal));
         $this->x_key = $this->deal["consumer_key"];
         $this->x_secret = $this->deal["consumer_secret"];
+        $this->getShop();
         $this->initWC($this->x_key,$this->x_secret);
         $this->order = new Order('{"id":"'.$id.'"}',$this->wc_client);
         $this->order->get();
@@ -96,6 +97,9 @@ class Deal extends G24Object{
         $cust = new Customer('{"id":"'.$this->order->customer_id.'"}',$this->wc_client);
         $cust->sync();
         return $cust;
+    }
+    public function getShopUrl(){
+        return $this->shop["link"];
     }
     protected function getShop(){
         $sql = "select s.id,s.name,s.link,s.description,s.api_key_id,wak.user_id from woocommerce_api_keys wak";

@@ -2,6 +2,7 @@
 namespace Garan24;
 class Garan24{
     protected static $_debug = true;
+    public static $_log_dir = "../storage/logs";
     public static $DB = [
         "host"=>"localhost",
         "user"=>"u0173919_vbu01",
@@ -26,7 +27,7 @@ class Garan24{
     public static function debug($mix){
         if(!self::$_debug)return;
         $str=self::obj2str($mix);
-        (class_exists("Log",false))?call_user_func("Log::debug",$str."\n"):file_put_contents("../garan24-".date("Y-m-d").'.log',$str."\n",FILE_APPEND);
+        (class_exists("Log",false))?call_user_func("Log::debug",$str."\n"):file_put_contents(self::$_log_dir."/garan24-".date("Y-m-d").'.log',$str."\n",FILE_APPEND);
 
     }
     public static function obj2str($mix){

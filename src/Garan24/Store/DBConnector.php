@@ -45,6 +45,12 @@ class DBConnector{
         $result->close();
         return $ret;
     }
+    public function selectAll($sql){
+        $result = $this->prepare($sql);
+        for ($ret = []; $tmp = $result->fetch_array(MYSQLI_ASSOC);) $ret[] = $tmp;
+        $result->close();
+        return $ret;
+    }
     public function insert($sql){
         if(!$this->_dbdata["connected"]) $this->connect();
         $sql = $this->_prefixed($sql);

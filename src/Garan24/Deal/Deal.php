@@ -8,9 +8,12 @@ use \Garan24\Garan24 as Garan24;
 
 class Deal extends G24Object{
     protected $shop;
+    protected $cust;
     protected $db;
     protected $redirect_url = "https://service.garan24.ru/checkout/";
     protected $deal;
+    protected $payments=[];
+    protected $delivery=[];
     public function __construct(){
         parent::__construct([
             "x_secret",
@@ -49,7 +52,7 @@ class Deal extends G24Object{
             $ret->code = 500;
             $ret->error = "No deal registered.";
         }
-        return $ret->__toString();
+        return $ret;
     }
     public function byJson($a){
         $a = is_array($a)?json_encode($a):$a;
@@ -63,14 +66,18 @@ class Deal extends G24Object{
         $sql.= " join shops s on s.id=d.shop_id";
         $sql.= " join woocommerce_api_keys wak on wak.key_id = s.api_key_id";
         $sql.= " where d.internal_order_id =".$id;
-        $this->deal = $this->db->select($sql);
-        Garan24::debug("Deal is : ". json_encode($this->deal));
-        $this->x_key = $this->deal["consumer_key"];
-        $this->x_secret = $this->deal["consumer_secret"];
-        $this->getShop();
-        $this->initWC($this->x_key,$this->x_secret);
-        $this->order = new Order('{"id":"'.$id.'"}',$this->wc_client);
-        $this->order->get();
+        try{
+            $this->deal = $this->db->select($sql);
+            Garan24::debug("Deal is : ". json_encode($this->deal));
+            $this->x_key = $this->deal["consumer_key"];
+            $this->x_secret = $this->deal["consumer_secret"];
+            $this->getShop();
+            $this->getOrder($id);
+            $this->getCustomer();
+        }
+        catch(\Exception $e){
+            Garan24::debug("Deal #{$id} not found.");
+        }
     }
     public function update($data){
         if(isset($data["customer_id"])){
@@ -79,12 +86,12 @@ class Deal extends G24Object{
             $this->order->update(["customer_id"=>$data["customer_id"]]);
         }
         else if( isset($data["billing"]) ){
+            $data["billing"]["phone"] = $this->cust->phone;
             $addr = $data["billing"];
             $addr["last_name"] = $data['fio']['last'];
             $addr["first_name"] = $data['fio']['first'];
             $this->order->update(["shipping_address"=>$addr]);
-            $cust = $this->getCustomer();
-            $cust->update([
+            $this->cust->update([
                 "last_name"=>$data['fio']['last'],
                 "first_name"=>$data['fio']['first'],
                 "billing_address" => $addr,
@@ -94,12 +101,36 @@ class Deal extends G24Object{
 
     }
     public function getCustomer(){
-        $cust = new Customer('{"id":"'.$this->order->customer_id.'"}',$this->wc_client);
-        $cust->sync();
-        return $cust;
+        $this->cust = new Customer('{"id":"'.$this->order->customer_id.'","customer_id":"'.$this->order->customer_id.'"}',$this->wc_client);
+        $this->cust->get();
+        Garan24::debug("Customer is : ". $this->cust->__toString());
     }
     public function getShopUrl(){
         return $this->shop["link"];
+    }
+    public function getPaymentTypes(){
+        if(count($this->payments))return $this->payments;
+        $sql = "select pt.id,pt.code,pt.name,pt.desc";
+        $sql.= " from garan24_paymenttype pt";
+	    $sql.= " join garan24_shop_payments sp on sp.payment_id=pt.id";
+        $sql.= " where sp.shop_id=".$this->shop["id"];
+        try{$this->payments = $this->db->selectAll($sql);}
+        catch(\Exception $e){
+            Garan24::debug("getPaymentTypes exception : ". $e);
+        }
+        return $this->payments;
+    }
+    public function getDeliveryTypes(){
+        if(count($this->delivery))return $this->delivery;
+        $sql = "select dt.id,dt.code,convert(dt.name using utf8) as name,convert(dt.desc using utf8) COLLATE utf8_bin as 'desc',dt.price,dt.timelaps";
+        $sql.= " from garan24_deliverytype dt";
+	    $sql.= " join garan24_shop_delivery sd on sd.delivery_id=dt.id";
+        $sql.= " where sd.shop_id=".$this->shop["id"];
+        try{$this->delivery = $this->db->selectAll($sql);}
+        catch(\Exception $e){
+            Garan24::debug("getPaymentTypes exception : ". $e);
+        }
+        return $this->delivery;
     }
     protected function getShop(){
         $sql = "select s.id,s.name,s.link,s.description,s.api_key_id,wak.user_id from woocommerce_api_keys wak";
@@ -122,6 +153,10 @@ class Deal extends G24Object{
         $sql.= ")";
         $this->db->insert($sql);
     }
-
+    protected function getOrder($id){
+        $this->initWC($this->x_key,$this->x_secret);
+        $this->order = new Order('{"id":"'.$id.'"}',$this->wc_client);
+        $this->order->get();
+    }
 };
 ?>

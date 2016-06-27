@@ -29,16 +29,15 @@ class Item extends G24Object{
         try{
             $resp = $resource->get($this->product_id);
             $this->_jdata = array_merge($this->_jdata,json_decode(json_encode($resp->product),true));
-            Garan24::debug($this->__toString());
-            Garan24::debug($this->images);
+            $this->product_id = $resp->product->id;
         }
         catch(\WC_API_Client_Exception $e){
             $this->create();
         }
-        catch(\WC_API_Client_HTTP_Exception $e){
-            echo $resp;
+        catch(\Exception $e){
+            echo $resp." -- ". $e->getMessage();
         }
-        $this->product_id = $resp->product->id;
+
     }
     protected function create(){
         $item = $this->_jdata;
@@ -48,7 +47,7 @@ class Item extends G24Object{
             'position'=>0
         ]];
         $item["external_url"] = $item["product_url"];
-        $resp = $resource->create(["product"=> $item]);
+        $resp = $this->wc_client->products->create(["product"=> $item]);
         $this->product_id = $resp->product->id;
     }
 };

@@ -113,7 +113,7 @@ class Deal extends G24Object{
         $sql = "select pt.id,pt.code,pt.name,pt.desc";
         $sql.= " from garan24_paymenttype pt";
 	    $sql.= " join garan24_shop_payments sp on sp.payment_id=pt.id";
-        $sql.= " where sp.shop_id=".$this->shop["id"];
+        $sql.= " where sp.shop_id=".$this->shop["id"]." order by pt.id";
         try{$this->payments = $this->db->selectAll($sql);}
         catch(\Exception $e){
             Garan24::debug("getPaymentTypes exception : ". $e);
@@ -125,7 +125,7 @@ class Deal extends G24Object{
         $sql = "select dt.id,dt.code,convert(dt.name using utf8) as name,convert(dt.desc using utf8) COLLATE utf8_bin as 'desc',dt.price,dt.timelaps";
         $sql.= " from garan24_deliverytype dt";
 	    $sql.= " join garan24_shop_delivery sd on sd.delivery_id=dt.id";
-        $sql.= " where sd.shop_id=".$this->shop["id"];
+        $sql.= " where sd.shop_id=".$this->shop["id"]." order by dt.id";
         try{$this->delivery = $this->db->selectAll($sql);}
         catch(\Exception $e){
             Garan24::debug("getPaymentTypes exception : ". $e);

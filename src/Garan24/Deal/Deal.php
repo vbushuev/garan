@@ -61,7 +61,7 @@ class Deal extends G24Object{
         $this->order = new Order($this->order,$this->wc_client);
     }
     public function byId($id){
-        $sql = "select d.id,d.shop_id,d.internal_order_id,s.consumer_key,wak.consumer_secret ";
+        $sql = "select d.id,d.shop_id,d.internal_order_id,s.consumer_key,wak.consumer_secret,d.response_url ";
         $sql.= " from deals d ";
         $sql.= " join shops s on s.id=d.shop_id";
         $sql.= " join woocommerce_api_keys wak on wak.key_id = s.api_key_id";
@@ -71,6 +71,7 @@ class Deal extends G24Object{
             Garan24::debug("Deal is : ". json_encode($this->deal));
             $this->x_key = $this->deal["consumer_key"];
             $this->x_secret = $this->deal["consumer_secret"];
+            $this->response_url = $this->deal["response_url"];
             $this->getShop();
             $this->getOrder($id);
             $this->getCustomer();
@@ -85,7 +86,15 @@ class Deal extends G24Object{
             $this->db->update($sql);
             $this->order->update(["customer_id"=>$data["customer_id"]]);
         }
-        else if( isset($data["billing"]) ){
+        if (isset($data["payment_id"])) {
+            $sql = "update deals set payment_id = '".$data["payment_id"]."' where id=".$this->deal["id"];
+            $this->db->update($sql);
+        }
+        if (isset($data["delivery_id"])) {
+            $sql = "update deals set delivery_id = '".$data["delivery_id"]."' where id=".$this->deal["id"];
+            $this->db->update($sql);
+        }
+        if( isset($data["billing"]) ){
             $data["billing"]["phone"] = $this->cust->phone;
             $addr = $data["billing"];
             $addr["last_name"] = $data['fio']['last'];
@@ -104,6 +113,7 @@ class Deal extends G24Object{
         $this->cust = new Customer('{"id":"'.$this->order->customer_id.'","customer_id":"'.$this->order->customer_id.'"}',$this->wc_client);
         $this->cust->get();
         Garan24::debug("Customer is : ". $this->cust->__toString());
+        return $this->cust;
     }
     public function getShopUrl(){
         return $this->shop["link"];
@@ -140,7 +150,7 @@ class Deal extends G24Object{
         Garan24::debug("Shop is : ". json_encode($this->shop));
     }
     protected function createDeal(){
-        $sql = "insert into deals (amount,currency,shop_id,status,internal_order_id,external_order_id,external_order_url,customer_id) ";
+        $sql = "insert into deals (amount,currency,shop_id,status,internal_order_id,external_order_id,external_order_url,customer_id,response_url) ";
         $sql.= "values(";
         $sql.= $this->order->order_total;
         $sql.= ",'".$this->order->order_currency."'";
@@ -150,6 +160,7 @@ class Deal extends G24Object{
         $sql.= ",'".$this->order->order_id."'";
         $sql.= ",'".$this->order->order_url."'";
         $sql.= ",'".$this->order->customer_id."'";
+        $sql.= ",'".$this->response_url."'";
         $sql.= ")";
         $this->db->insert($sql);
     }

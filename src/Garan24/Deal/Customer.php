@@ -14,6 +14,8 @@ class Customer extends G24Object{
             "customer_id",
             "email",
             "phone",
+            "billing_address",
+            "shipping_address"
         ],$ii,$wc);
         $this->db = new DBConnector();
         //$this->_jdata["phone"] = isset($this->_jdata["phone"])?preg_replace("/\+7/","7",$this->_jdata["phone"]):"";
@@ -45,6 +47,12 @@ class Customer extends G24Object{
     public function update($data){
         $resp = $this->wc_client->customers->update($this->id,$data);
         $this->_jdata = array_merge($this->_jdata,json_decode(json_encode($resp->customer),true));
+    }
+    public function toAddressString(){
+        $str = $this->billing_address['city']
+            .", ".$this->billing_address['postcode']
+            .", ".$this->billing_address['address_1'];
+        return $str;
     }
     protected function create(){
         $resp = $this->wc_client->customers->create(["customer"=> [

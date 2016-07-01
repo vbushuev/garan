@@ -54,6 +54,18 @@ class Deal extends G24Object{
         }
         return $ret;
     }
+    public function finish(){
+        $ret = new DealResponse();
+        $ret->id = $this->deal["internal_order_id"];
+        $ret->code = 0;
+        $ret->error = 0;
+        $ret->order = [
+            "order_id" => $this->deal["external_order_id"],
+            "status"=>"onconfirm",
+            "shipping"=>$this->cust->shipping_address
+        ];
+        return $ret;
+    }
     public function byJson($a){
         $a = is_array($a)?json_encode($a):$a;
         $this->_jdata = array_change_key_case(json_decode($a,true),CASE_LOWER);
@@ -61,7 +73,7 @@ class Deal extends G24Object{
         $this->order = new Order($this->order,$this->wc_client);
     }
     public function byId($id){
-        $sql = "select d.id,d.shop_id,d.internal_order_id,s.consumer_key,wak.consumer_secret,d.response_url ";
+        $sql = "select d.id,d.shop_id,d.internal_order_id,d.external_order_id,s.consumer_key,wak.consumer_secret,d.response_url,d.status ";
         $sql.= " from deals d ";
         $sql.= " join shops s on s.id=d.shop_id";
         $sql.= " join woocommerce_api_keys wak on wak.key_id = s.api_key_id";
@@ -77,7 +89,7 @@ class Deal extends G24Object{
             $this->getCustomer();
         }
         catch(\Exception $e){
-            Garan24::debug("Deal #{$id} not found.");
+            Garan24::debug("Deal #{$id} not found.".$e->getMessage());
         }
     }
     public function update($data){

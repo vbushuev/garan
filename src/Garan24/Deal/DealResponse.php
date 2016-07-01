@@ -8,7 +8,8 @@ class DealResponse extends G24Object{
             "id",
             "redirect_url",
             "code",
-            "error"
+            "error",
+            "order"
         ],$a);
     }
 };

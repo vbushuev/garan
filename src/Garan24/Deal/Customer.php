@@ -55,28 +55,43 @@ class Customer extends G24Object{
         return $str;
     }
     protected function create(){
-        $resp = $this->wc_client->customers->create(["customer"=> [
-            "email"=>$this->email,
-            "password"=>$this->phone,
-            "username"=>$this->email,
-            'billing_address' => [
-                /*'first_name' => $this->email,
-                'last_name' => $this->email,
-                'company' => '',
-                'address_1' => '',
-                'address_2' => '',
-                'city' => '',
-                'state' => '',
-                'postcode' => '',*/
-                'country' => 'RU',
-                'email' => $this->email,
-                'phone' => $this->phone
-            ]
-        ]]);
-
-        $this->_jdata = array_merge($this->_jdata,json_decode(json_encode($resp->customer),true));
-        $this->customer_id = $this->id;
-        //$this->update([]);
+        try{
+            $resp = $this->wc_client->customers->get_by_email($this->email);
+            Garan24::debug($resp);
+            if(isset($resp->customer)){
+                $this->_jdata = array_merge($this->_jdata,json_decode(json_encode($resp->customer),true));
+                $this->customer_id = $this->id;
+                //$this->update(['billing_address' => ['country' => 'RU','phone' => $this->phone]]);
+                return;
+            }
+        }
+        catch(\Exception $e){
+            try{
+                $resp = $this->wc_client->customers->create(["customer"=> [
+                    "email"=>$this->email,
+                    "password"=>$this->phone,
+                    "username"=>$this->email,
+                    'billing_address' => [
+                        /*'first_name' => $this->email,
+                        'last_name' => $this->email,
+                        'company' => '',
+                        'address_1' => '',
+                        'address_2' => '',
+                        'city' => '',
+                        'state' => '',
+                        'postcode' => '',*/
+                        'country' => 'RU',
+                        'email' => $this->email,
+                        'phone' => $this->phone
+                    ]
+                ]]);
+                $this->_jdata = array_merge($this->_jdata,json_decode(json_encode($resp->customer),true));
+                $this->customer_id = $this->id;
+            }
+            catch(\Exception $e){
+                $this->customer_id = 0;
+            }
+        }//$this->update([]);
     }
     protected function getCustomer(){
         $sql = "select u.id,u.user_email,um.meta_value,u.id as `customer_id`";

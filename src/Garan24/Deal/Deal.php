@@ -13,13 +13,15 @@ class Deal extends G24Object{
     protected $redirect_url = "https://service.garan24.ru/checkout/";
     protected $deal;
     protected $payments=[];
-    protected $delivery=[];
+    protected $deliveries=[];
     public function __construct(){
         parent::__construct([
             "x_secret",
             "x_key",
             "version",
             "response_url",
+            "payment",
+            "delivery",
             "order"
         ]);
         $this->db = new DBConnector();
@@ -73,10 +75,15 @@ class Deal extends G24Object{
         $this->order = new Order($this->order,$this->wc_client);
     }
     public function byId($id){
-        $sql = "select d.id,d.shop_id,d.internal_order_id,d.external_order_id,s.consumer_key,wak.consumer_secret,d.response_url,d.status ";
+        $sql = "select d.id,d.shop_id,d.internal_order_id,d.external_order_id,s.consumer_key,wak.consumer_secret,d.response_url,d.status";
+        $sql.= ",d.payment_id as payment_type_id,d.delivery_id as delivery_type_id ";
+        $sql.= ",dt.name as delivery_type_name,dt.desc as delivery_type_desc ";
+        $sql.= ",pt.name as payment_type_name,pt.desc as payment_type_desc ";
         $sql.= " from deals d ";
         $sql.= " join shops s on s.id=d.shop_id";
         $sql.= " join woocommerce_api_keys wak on wak.key_id = s.api_key_id";
+        $sql.= " left outer join garan24_deliverytype dt on dt.id = d.delivery_id";
+        $sql.= " left outer join garan24_paymenttype pt on pt.id = d.payment_id";
         $sql.= " where d.internal_order_id =".$id;
         try{
             $this->deal = $this->db->select($sql);
@@ -84,9 +91,12 @@ class Deal extends G24Object{
             $this->x_key = $this->deal["consumer_key"];
             $this->x_secret = $this->deal["consumer_secret"];
             $this->response_url = $this->deal["response_url"];
+            $this->payment = ["id"=>$this->deal["payment_type_id"],"name"=>$this->deal["payment_type_name"],"desc"=>$this->deal["payment_type_desc"] ];
+            $this->delivery = ["id"=>$this->deal["delivery_type_id"],"name"=>$this->deal["delivery_type_name"],"desc"=>$this->deal["delivery_type_desc"] ];
             $this->getShop();
             $this->getOrder($id);
             $this->getCustomer();
+
         }
         catch(\Exception $e){
             Garan24::debug("Deal #{$id} not found.".$e->getMessage());
@@ -143,16 +153,16 @@ class Deal extends G24Object{
         return $this->payments;
     }
     public function getDeliveryTypes(){
-        if(count($this->delivery))return $this->delivery;
+        if(count($this->deliveries))return $this->deliveries;
         $sql = "select dt.id,dt.code,convert(dt.name using utf8) as name,convert(dt.desc using utf8) COLLATE utf8_bin as 'desc',dt.price,dt.timelaps";
         $sql.= " from garan24_deliverytype dt";
 	    $sql.= " join garan24_shop_delivery sd on sd.delivery_id=dt.id";
         $sql.= " where sd.shop_id=".$this->shop["id"]." order by dt.id";
-        try{$this->delivery = $this->db->selectAll($sql);}
+        try{$this->deliveries = $this->db->selectAll($sql);}
         catch(\Exception $e){
             Garan24::debug("getPaymentTypes exception : ". $e);
         }
-        return $this->delivery;
+        return $this->deliveries;
     }
     protected function getShop(){
         $sql = "select s.id,s.name,s.link,s.description,s.api_key_id,wak.user_id from woocommerce_api_keys wak";

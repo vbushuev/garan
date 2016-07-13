@@ -19,6 +19,7 @@ class DBConnector{
     }
     protected function connect(){
         $this->_dbdata["conn"] = new \mysqli($this->_dbdata["host"],$this->_dbdata["user"],$this->_dbdata["pass"],$this->_dbdata["schema"]);
+        GARAN24::debug($this->_dbdata);
         if($this->_dbdata["conn"]->connect_errno) throw new StoreException("No db connection. Error:".$this->_dbdata["conn"]->connect_error);
         $this->_dbdata["connected"] = true;
         $this->_dbdata["conn"]->set_charset('utf8');

@@ -12,8 +12,7 @@ class Deal extends G24Object{
     protected $db;
     protected $redirect_url = "https://service.garan24.ru/checkout/";
     protected $deal;
-    protected $payments=[];
-    protected $deliveries=[];
+    protected $raw_request="";
     public function __construct(){
         parent::__construct([
             "x_secret",
@@ -69,6 +68,7 @@ class Deal extends G24Object{
         return $ret;
     }
     public function byJson($a){
+        $this->raw_request = $a;
         $a = is_array($a)?json_encode($a):$a;
         $this->_jdata = array_change_key_case(json_decode($a,true),CASE_LOWER);
         $this->initWC($this->x_key,$this->x_secret);
@@ -119,15 +119,25 @@ class Deal extends G24Object{
         if( isset($data["billing"]) ){
             $data["billing"]["phone"] = $this->cust->phone;
             $addr = $data["billing"];
-            $addr["last_name"] = $data['fio']['last'];
-            $addr["first_name"] = $data['fio']['first'];
+            if(isset($data['fio'])){
+                $addr["last_name"] = $data['fio']['last'];
+                $addr["first_name"] = $data['fio']['first'];
+                $this->cust->update([
+                    "last_name"=>$data['fio']['last'],
+                    "first_name"=>$data['fio']['first']
+                ]);
+            }
             $this->order->update(["shipping_address"=>$addr]);
             $this->cust->update([
-                "last_name"=>$data['fio']['last'],
-                "first_name"=>$data['fio']['first'],
                 "billing_address" => $addr,
                 "shiping_address" => $addr
             ]);
+        }
+        if(isset($data["card-ref-id"])){
+            $sql = "insert into garan24_cardrefs (card_ref_id) values('".$data["card-ref-id"]."')";
+            $this->db->insert($sql);
+            $sql = "insert into garan24_user_cardref (user_id,card_ref_id) values(".$deal->getCustomer()->customer_id.",last_insert_id())";
+            $this->db->insert($sql);
         }
 
     }
@@ -141,28 +151,40 @@ class Deal extends G24Object{
         return $this->shop["link"];
     }
     public function getPaymentTypes(){
-        if(count($this->payments))return $this->payments;
+        //if(count($this->payments))return $this->payments;
         $sql = "select pt.id,pt.code,pt.name,pt.desc";
         $sql.= " from garan24_paymenttype pt";
 	    $sql.= " join garan24_shop_payments sp on sp.payment_id=pt.id";
-        $sql.= " where sp.shop_id=".$this->shop["id"]." order by pt.id";
-        try{$this->payments = $this->db->selectAll($sql);}
+        $sql.= " where sp.shop_id=".$this->shop["id"];
+        if(isset($this->_jdata["payments"])&&count($this->_jdata["payments"])){
+            $sql.= " and pt.code in ('".join("','",$this->_jdata["payments"])."')";
+        }
+        $sql.= " order by pt.id";
+        $payments=[];
+        Garan24::debug("getPaymentTypes sql query:".$sql);
+        try{$payments = $this->db->selectAll($sql);}
         catch(\Exception $e){
             Garan24::debug("getPaymentTypes exception : ". $e);
         }
-        return $this->payments;
+        return $payments;
     }
     public function getDeliveryTypes(){
-        if(count($this->deliveries))return $this->deliveries;
+        //if(count($this->deliveries))return $this->deliveries;
+        $deliveries=[];
         $sql = "select dt.id,dt.code,convert(dt.name using utf8) as name,convert(dt.desc using utf8) COLLATE utf8_bin as 'desc',dt.price,dt.timelaps";
         $sql.= " from garan24_deliverytype dt";
 	    $sql.= " join garan24_shop_delivery sd on sd.delivery_id=dt.id";
-        $sql.= " where sd.shop_id=".$this->shop["id"]." order by dt.id";
-        try{$this->deliveries = $this->db->selectAll($sql);}
-        catch(\Exception $e){
-            Garan24::debug("getPaymentTypes exception : ". $e);
+        $sql.= " where sd.shop_id=".$this->shop["id"];
+        if(isset($this->_jdata["deliveries"])&&count($this->_jdata["deliveries"])){
+            $sql.= " and dt.code in ('".join("','",$this->_jdata["deliveries"])."')";
         }
-        return $this->deliveries;
+        $sql.= " order by dt.id";
+        Garan24::debug("getDeliveryTypes sql query:".$sql);
+        try{$deliveries = $this->db->selectAll($sql);}
+        catch(\Exception $e){
+            Garan24::debug("getDeliveryTypes exception : ". $e);
+        }
+        return $deliveries;
     }
     protected function getShop(){
         $sql = "select s.id,s.name,s.link,s.description,s.api_key_id,wak.user_id from woocommerce_api_keys wak";
@@ -172,7 +194,7 @@ class Deal extends G24Object{
         Garan24::debug("Shop is : ". json_encode($this->shop));
     }
     protected function createDeal(){
-        $sql = "insert into deals (amount,currency,shop_id,status,internal_order_id,external_order_id,external_order_url,customer_id,response_url) ";
+        $sql = "insert into deals (amount,currency,shop_id,status,internal_order_id,external_order_id,external_order_url,customer_id,response_url,payments,deliveries,raw_request) ";
         $sql.= "values(";
         $sql.= $this->order->order_total;
         $sql.= ",'".$this->order->order_currency."'";
@@ -183,6 +205,9 @@ class Deal extends G24Object{
         $sql.= ",'".$this->order->order_url."'";
         $sql.= ",'".$this->order->customer_id."'";
         $sql.= ",'".$this->response_url."'";
+        $sql.= ",'".(isset($this->payment)?$this->payment:"")."'";
+        $sql.= ",'".(isset($this->delivery)?$this->delivery:"")."'";
+        $sql.= ",'".$this->raw_request."'";
         $sql.= ")";
         $this->db->insert($sql);
     }

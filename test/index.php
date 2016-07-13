@@ -1,58 +1,49 @@
 <?php
-
 require_once("test.php");
 $str = '{
-    "x_secret":"cs_0c12a03d43781fd418696af84e2a5519ef0b829e",
-    "x_key":"ck_7b5f8404d88a0d2aa32cda366bcb2ad1a06b6ae3",
-    "version":"1.0",
-    "response_url":"https://youronlinestore.com/response",
-    "order":
-    {
-        "order_id":"555",
-        "order_url":"https://youronlinestore.com/order/#id",
-        "order_total":"14313.00",
-        "order_currency":"RUB",
-        "items":[
-			{
-                "product_id":"product-9",
-                "title":"Mens Jacket",
-                "description":"Fasion men\'s jacket",
-                "product_url":"http://demostore.garan24.ru/product/jacket/",
-                "product_img":"http://demostore.garan24.ru/wp-content/uploads/2016/04/jacket.jpg",
-                "quantity":"1",
-                "weight":"500",
-                "dimensions":{
-                    "height":"100",
-                    "width":"10",
-                    "depth":"40"
-                },
-                "regular_price":"5211.20",
-                "variations":{"color":"brown"}
-            },
-            {
-                "product_id":"product-30",
-                "title":"Causual men’s shoes",
-                "description":"Tiny style shoes",
-                "product_url":"http://demostore.garan24.ru/product/causual-mens-shoes/",
-                "product_img":"http://demostore.garan24.ru/wp-content/uploads/2016/04/x._V293494175_-600x381.jpg",
-                "quantity":"1",
-                "weight":"400",
-                "dimensions":{
-                    "height":"11",
-                    "width":"8",
-                    "depth":"40"
-                },
-                "regular_price":"9101.80",
-                "variations":{"color":"brown"}
-            }
-		]
-    }
-}
-';
-$o =  new Garan24\Deal\Deal();
+	"x_secret": "cs_f8bcb640c24e4304f4e469d4a5f90b22b82986fb",
+	"x_key": "ck_6c43b79838264f96fc89b26edea7a5792f207dbe",
+	"version": "1.0",
+	"response_url": "https://magnitolkin.ru/Handlers/Garan24CheckoutResponse/",
+	"order": {
+		"order_id": "6830",
+		"order_url": "https://magnitolkin.ru/orders/1da04b7ce510/",
+		"order_total": 21380.0,
+		"order_currency": "RUR",
+		"items": [{
+			"product_id": "32423",
+			"title": "b򮠪󱲨렠6 x 9\" Vibe BDQB69-V2",
+			"description": null,
+			"product_url": "https://magnitolkin.ru/catalogue/Akustika/coaxial/6_6_5_inch/Avtoakustika_6-6_5__Vibe_BDQB69-V2/",
+			"product_img": "https://magnitolkin.ru/Handlers/CatalogueShopItemImage/?id=32423",
+			"quantity": 2,
+			"weight": "0",
+			"dimensions": {
+				"height": 30,
+				"width": 30,
+				"depth": 30
+			},
+			"regular_price": 10690.0,
+			"variations": null
+		}]
+	}
+}';
+\Garan24\Garan24::$DB["host"]="151.248.117.239";
+
+$result = file_get_contents("https://service.garan24.ru/checkout", null, stream_context_create(array(
+    'http' => array(
+        'method' => 'POST',
+        'header' => array('Content-Type: application/json'."\r\n"
+        . 'Content-Length: ' . strlen($str) . "\r\n"),
+        'content' => $str)
+        )
+    )
+);
+echo $result;
+//$o =  new Garan24\Deal\Deal();
 //$o->byJson($str);
 //$o->sync();
-echo $o->byId(500);
+//echo $o->byId(500);
 //echo ($o->check(false)?"checked":"no required fields")."\n";
 /*$o->update(["customer_id"=>2,"address"=>[
     "first_name"=> "John",
@@ -66,6 +57,7 @@ echo $o->byId(500);
     "email"=> "john.doe@example.com",
     "phone"=> "(555) 555-5555"
 ]]);*/
-print_r ($o->order->getProducts());
+print_r ($o->getDeliveryTypes());
+print_r ($o->getPaymentTypes());
 
 ?>

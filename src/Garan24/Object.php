@@ -26,7 +26,7 @@ class Object {
     }
     public function __get($nc){
         $n=strtolower($nc);
-        if(!$this->__isset($n)) throw new Exception("No such parameter \{{$n}\}");
+        if(!$this->__isset($n)) throw new Exception("No such parameter \{{$nc}\}");
         return $this->_jdata["{$n}"];
     }
     public function __set($nc,$v){

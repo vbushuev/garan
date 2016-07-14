@@ -58,6 +58,7 @@ class Deal extends G24Object{
         return $ret;
     }
     public function finish(){
+        $this->order->update(['status' => 'processing']);
         $ret = new DealResponse();
         $ret->id = $this->deal["internal_order_id"];
         $ret->code = 0;
@@ -148,7 +149,12 @@ class Deal extends G24Object{
                     "first_name"=>$data['fio']['first']
                 ]);
             }
-            $this->order->update(["shipping_address"=>$addr]);
+            $this->order->update([
+                "shipping_address"=>$addr,
+                "shipping_lines"=>[
+
+                ]
+            ]);
             $this->customer->update([
                 "billing_address" => $addr,
                 "shiping_address" => $addr

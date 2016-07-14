@@ -47,6 +47,7 @@ class Order extends G24Object{
             }
             $this->items = $items;
         }
+        $this->order_total = $this->_jdata["total"];
     }
     public function update($data){
         $resource = new \WC_API_Client_Resource_Orders($this->wc_client);

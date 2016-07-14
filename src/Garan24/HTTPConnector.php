@@ -1,7 +1,7 @@
 <?php
-namespace Garan24\Gateway;
+namespace Garan24;
 use \Garan24\Garan24 as Garan24;
-class HTTPConnector implements \Garan24\Interfaces\IConnector{
+class HTTPConnector{
     /*******************************************************************************
      * Производит перенаправление пользователя на заданный адрес
      *
@@ -56,8 +56,11 @@ class HTTPConnector implements \Garan24\Interfaces\IConnector{
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_FOLLOWLOCATION => true
         ];
-        $urlparams = implode('&',$data);
-        $curl = curl_init($url.'?'.$urlparams);
+        $urlparams = "";
+        if(!is_null($data)&&is_array($data)){
+            foreach($data as $k=>$v)$urlparams.=(strlen($urlparams)?"&":"").$k."=".$v;
+        }
+        $curl = curl_init($url.(preg_match("/\\\?/im",$url)?'&':'?').$urlparams);
         curl_setopt_array($curl, $curlOptions);
         $response = curl_exec($curl);
         Garan24::debug("RAW RESPONSE:[{$response}]");

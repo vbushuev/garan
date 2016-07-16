@@ -14,7 +14,7 @@ class RequiredObject extends Object {
     }
     public function __set($nc,$v){
         $n=strtolower($nc);
-        if(!in_array($n,$this->_rdata)) throw new Exception("No such parameter \{{$n}\}");
+        //if(!in_array($n,$this->_rdata)) throw new Exception("No such parameter \{{$n}\}");
         $this->_jdata["{$n}"]=$v;
     }
     public function check($useException = false){

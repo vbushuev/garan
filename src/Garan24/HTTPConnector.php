@@ -22,15 +22,14 @@ class HTTPConnector{
      * @return array
      ******************************************************************************/
     public function post($url,$data = null){
-        $fp=fopen('../garan-curl-'.date("Y-m-d").'.log', 'wa');
+
         $curlOptions = [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => http_build_query($data),
             CURLOPT_VERBOSE => 1,
-            CURLOPT_STDERR => $fp,
             CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_FOLLOWLOCATION => true
+            //CURLOPT_FOLLOWLOCATION => true
         ];
         $curl = curl_init($url);
         curl_setopt_array($curl, $curlOptions);
@@ -48,13 +47,13 @@ class HTTPConnector{
      * @return array
      ******************************************************************************/
     public function get($url,$data = null){
-        $fp=fopen('../garan-curl-'.date("Y-m-d").'.log', 'wa');
+        //$fp=fopen('../garan-curl-'.date("Y-m-d").'.log', 'wa');
         $curlOptions = [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_VERBOSE => 1,
-            CURLOPT_STDERR => $fp,
+            //CURLOPT_STDERR => $fp,
             CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_FOLLOWLOCATION => true
+            //CURLOPT_FOLLOWLOCATION => true
         ];
         $urlparams = "";
         if(!is_null($data)&&is_array($data)){

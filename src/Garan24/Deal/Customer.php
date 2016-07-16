@@ -45,6 +45,23 @@ class Customer extends G24Object{
         $this->phone = $resp->customer->billing_address->phone;
     }
     public function update($data){
+        if(isset($data["passport"])||isset($data["fio"]['middle'])){
+            if(isset($data["passport"])){
+                $d = preg_replace("/'/mi","",json_encode($data["passport"]));
+                if($this->db->exists("select 1 from garan24_usermeta where user_id='{$this->customer_id}' and value_key='passport'")){
+                    $this->db->update("update garan24_usermeta set value_data = '{$d}' where user_id='{$this->customer_id}' and value_key='passport'");
+                }else{
+                    $this->db->insert("insert into garan24_usermeta (user_id,value_key,value_data) values ('{$this->customer_id}','passport','{$d}')");
+                }
+            }
+            if(isset($data["fio"]['middle'])){
+                if($this->db->exists("select 1 from garan24_usermeta where user_id='{$this->customer_id}' and value_key='fio_middle'"))
+                    $this->db->update("update garan24_usermeta set value_data = '{$data["fio"]['middle']}' where user_id='{$this->customer_id}' and value_key='fio_middle'");
+                else $this->db->insert("insert into garan24_usermeta (user_id,value_key,value_data) values ('{$this->customer_id}','fio_middle','{$data["fio"]['middle']}')");
+            }
+            return;
+        }
+
         $resp = $this->wc_client->customers->update($this->id,$data);
         $this->_jdata = array_merge($this->_jdata,json_decode(json_encode($resp->customer),true));
     }
@@ -95,8 +112,12 @@ class Customer extends G24Object{
     }
     protected function getCustomer(){
         $sql = "select u.id,u.user_email,um.meta_value,u.id as `customer_id`";
+        $sql.= " ,fio.value_data as `fio_middle`";
+        $sql.= " ,passport.value_data as `passport`";
         $sql.= "from users u";
         $sql.= " join usermeta um on u.id = um.user_id and um.meta_key='billing_phone'";
+        $sql.= " left outer join garan24_usermeta fio on u.id = fio.user_id and fio.value_key='fio_middle'";
+        $sql.= " left outer join garan24_usermeta passport on u.id = passport.user_id and passport.value_key='passport'";
         if(isset($this->email)&&isset($this->phone)){
             $sql.= " where u.user_email = '".$this->email."'";
             $sql.= " and um.meta_value = '".$this->phone."'";
@@ -106,6 +127,7 @@ class Customer extends G24Object{
         }
         $user = $this->db->select($sql);
         $this->_jdata = $user;
+        $this->_jdata["passport"] = json_decode($this->_jdata["passport"],true);
     }
 };
 ?>

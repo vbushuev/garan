@@ -18,7 +18,7 @@ class HTTPResponse extends Parameters{
         $this->_request = $d["request"];
     }
     public function getRedirectUrl(){
-        if(!$this->isRedirect()) throw new Garan24GatewayAruispayException("No redirect is required.",500);
+        if(!$this->isRedirect()) throw new Aruispay\Exception("No redirect is required.",500);
         return $this->_params["redirect-url"];
     }
     public function isRedirect(){

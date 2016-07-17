@@ -9,7 +9,7 @@ class RequiredObject extends Object {
     }
     public function __isset($nc){
         $n=strtolower($nc);
-        if(!in_array($n,$this->_rdata))return false;
+        //if(!in_array($n,$this->_rdata))return false;
         return isset($this->_jdata["{$n}"]);
     }
     public function __set($nc,$v){

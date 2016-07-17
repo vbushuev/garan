@@ -76,6 +76,7 @@ class Deal extends G24Object{
             "status"=>"onconfirm",
             "shipping"=>$this->customer->shipping_address
         ];
+        $this->update(["status"=>'checkout']);
         return $ret;
     }
     public function byJson($a){
@@ -91,22 +92,25 @@ class Deal extends G24Object{
         $sql.= ",d.payment_id as payment_type_id,d.delivery_id as delivery_type_id ";
         $sql.= ",dt.name as delivery_type_name,dt.desc as delivery_type_desc ";
         $sql.= ",pt.name as payment_type_name,pt.desc as payment_type_desc ";
-        $sql.= ",d.shipping_cost";
+        $sql.= ",d.shipping_cost as `shipping_cost`";
+        $sql.= ",ds.status as `status`";
         $sql.= " from deals d ";
         $sql.= " join shops s on s.id=d.shop_id";
         $sql.= " join woocommerce_api_keys wak on wak.key_id = s.api_key_id";
+        $sql.= " join garan24_deal_statuses ds on ds.id = d.status";
         $sql.= " left outer join garan24_deliverytype dt on dt.id = d.delivery_id";
         $sql.= " left outer join garan24_paymenttype pt on pt.id = d.payment_id";
         $sql.= " where d.internal_order_id =".$id;
         try{
             $this->deal = $this->db->select($sql);
-            Garan24::debug("Deal is : ". json_encode($this->deal));
+            $this->_jdata = array_merge($this->_jdata,$this->deal);
             $this->x_key = $this->deal["consumer_key"];
             $this->x_secret = $this->deal["consumer_secret"];
             $this->response_url = $this->deal["response_url"];
             $this->payment = ["id"=>$this->deal["payment_type_id"],"name"=>$this->deal["payment_type_name"],"desc"=>$this->deal["payment_type_desc"] ];
             $this->delivery = ["id"=>$this->deal["delivery_type_id"],"name"=>$this->deal["delivery_type_name"],"desc"=>$this->deal["delivery_type_desc"] ];
             $this->_loaded = true;
+            Garan24::debug("Deal is : ". json_encode($this->_jdata));
             $this->getShop();
             $this->getOrder($id);
             $this->getCustomer();
@@ -182,7 +186,10 @@ class Deal extends G24Object{
             $sql = "update deals set shipping_cost='".$data["shipping_cost"]."' where id = ".$this->deal["id"];
             $this->db->update($sql);
         }
-
+        if(isset($data["status"])){
+            $sql = "update deals set status=(select status from garan24_deal_statuses where id=".$data["status"].") where id = ".$this->deal["id"];
+            $this->db->update($sql);
+        }
     }
     public function getCustomer(){
         if(!$this->_loaded)return;
@@ -234,7 +241,7 @@ class Deal extends G24Object{
         }
         return $deliveries;
     }
-    public function __call($f,$a){
+    public function __caller($f,$a){
         if(is_array($a)&&count($a)){
             $val = (count($a)==1)?$a[0]:$a;
             if(isset($this->deal[$f]))$this->deal[$f] = $val;

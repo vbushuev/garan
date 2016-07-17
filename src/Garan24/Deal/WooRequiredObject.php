@@ -26,9 +26,9 @@ class WooRequiredObject extends \Garan24\RequiredObject {
         ];
         try {
             $this->wc_client = new WC_API_Client( $domain, $consumer_key,$consumer_secret, $options );
-            Garan24::debug("Connected to WC\n");
         }
         catch ( Exception $e ) {
+            Garan24::debug("NOT Connected to WC");
             $resp["code"] = $e->getCode();
             $resp["message"] = $e->getMessage();
             if ( $e instanceof WC_API_Client_HTTP_Exception ) {

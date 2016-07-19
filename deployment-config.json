@@ -1,0 +1,9 @@
+{
+    "type": "sftp",
+    "host": "151.248.117.239",
+    "username": "root",
+    "password": "VsAB2Eno9_U0ax",
+    "port": 22,
+    "remotePath": "/var/www/u0173919/data/www/service.garan24.ru/vendor/garan",
+    "uploadOnSave": false
+}

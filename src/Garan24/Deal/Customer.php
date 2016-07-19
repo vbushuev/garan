@@ -47,6 +47,7 @@ class Customer extends G24Object{
     public function update($data){
         if(isset($data["passport"])||isset($data["fio"]['middle'])){
             if(isset($data["passport"])){
+                $data["passport"]["'where'"]=rtrim(isset($data["passport"]["'where'"])?$data["passport"]["'where'"]:"");
                 $d = preg_replace("/'/mi","",json_encode($data["passport"]));
                 if($this->db->exists("select 1 from garan24_usermeta where user_id='{$this->customer_id}' and value_key='passport'")){
                     $this->db->update("update garan24_usermeta set value_data = '{$d}' where user_id='{$this->customer_id}' and value_key='passport'");
@@ -126,7 +127,8 @@ class Customer extends G24Object{
             $sql.= " where u.id = '".$this->id."'";
         }
         $user = $this->db->select($sql);
-        $this->_jdata = $user;
+        $this->_jdata = array_merge($this->_jdata,$user);
+        Garan24::debug($this->_jdata["passport"]);
         $this->_jdata["passport"] = json_decode($this->_jdata["passport"],true);
     }
 };

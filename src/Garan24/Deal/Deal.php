@@ -187,7 +187,7 @@ class Deal extends G24Object{
             $this->db->update($sql);
         }
         if(isset($data["status"])){
-            $sql = "update deals set status=(select status from garan24_deal_statuses where id=".$data["status"].") where id = ".$this->deal["id"];
+            $sql = "update deals set status=(select id from garan24_deal_statuses where status='".$data["status"]."') where id = ".$this->deal["id"];
             $this->db->update($sql);
         }
     }
@@ -195,8 +195,8 @@ class Deal extends G24Object{
         if(!$this->_loaded)return;
         if(!$this->customer&&is_object($this->customer)&&($this->customer instanceof Customer)) return $this->customer;
         $this->customer = new Customer('{"id":"'.$this->order->customer_id.'","customer_id":"'.$this->order->customer_id.'"}',$this->wc_client);
-        $this->customer->get();
-        Garan24::debug("Customer is : ". $this->customer->__toString());
+        $this->customer->sync();
+        Garan24::debug("Customer is : ". json_encode($this->customer->toArray()));
         return $this->customer;
     }
     public function getShopUrl(){

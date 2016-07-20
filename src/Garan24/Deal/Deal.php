@@ -185,6 +185,7 @@ class Deal extends G24Object{
         if(isset($data["shipping_cost"])){
             $sql = "update deals set shipping_cost='".$data["shipping_cost"]."' where id = ".$this->deal["id"];
             $this->db->update($sql);
+            $this->_jdata["shipping_cost"] = $data["shipping_cost"];
         }
         if(isset($data["status"])){
             $sql = "update deals set status=(select id from garan24_deal_statuses where status='".$data["status"]."') where id = ".$this->deal["id"];

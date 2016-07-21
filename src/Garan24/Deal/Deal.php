@@ -132,10 +132,12 @@ class Deal extends G24Object{
         if (isset($data["payment_id"])) {
             $sql = "update deals set payment_id = '".$data["payment_id"]."' where id=".$this->deal["id"];
             $this->db->update($sql);
+            $this->payment = $this->db->select("select pt.id,pt.name,pt.desc from garan24_paymenttype pt where id=".$data["payment_id"]);
         }
         if (isset($data["delivery_id"])) {
             $sql = "update deals set delivery_id = '".$data["delivery_id"]."' where id=".$this->deal["id"];
             $this->db->update($sql);
+            $this->delivery = $this->db->select("select pt.id,pt.name,pt.desc from garan24_deliverytype pt where id=".$data["delivery_id"]);
         }
         if( isset($data['fio'])){
             $this->customer->update([
@@ -157,19 +159,21 @@ class Deal extends G24Object{
         if( isset($data["billing"]) ){
             $data["billing"]["phone"] = $this->customer->phone;
             $addr = $data["billing"];
-            if(isset($data['fio'])){
+            $cust = [];
+            if(isset($data['fio'])&&isset($data['fio']['last'])){
                 $addr["last_name"] = $data['fio']['last'];
+                $cust["last_name"] = $data['fio']['last'];
+            }
+            if(isset($data['fio'])&&isset($data['fio']['first'])){
                 $addr["first_name"] = $data['fio']['first'];
-                $this->customer->update([
-                    "last_name"=>$data['fio']['last'],
-                    "first_name"=>$data['fio']['first']
-                ]);
+                $cust["first_name"] = $data['fio']['first'];
+            }
+            if(count($cust)){
+                $this->customer->update($cust);
             }
             $this->order->update([
                 "shipping_address"=>$addr,
-                "shipping_lines"=>[
-
-                ]
+                "shipping_lines"=>[]
             ]);
             $this->customer->update([
                 "billing_address" => $addr,

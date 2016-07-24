@@ -66,7 +66,12 @@ class Deal extends G24Object{
         return $ret;
     }
     public function finish(){
-        $this->order->update(['status' => 'processing']);
+        try{
+            $this->order->update(['status' => 'processing']);
+        }
+        catch (\Exception $e){
+            Garan24::debug($e);
+        }
         $ret = new DealResponse();
         $ret->id = $this->deal["internal_order_id"];
         $ret->code = 0;

@@ -79,10 +79,21 @@ class Customer extends G24Object{
             .", ".$this->billing_address['address_1'];
         return $str;
     }
+    public function toNameString(){
+        $str = $this->billing_address['first_name']
+            ." ".$this->fio_middle;
+        return $str;
+    }
+    public function toFullNameString(){
+        $str = $this->billing_address['first_name']
+            ." ".$this->_jdata['fio_middle']
+            ." ".$this->billing_address['last_name'];
+        return $str;
+    }
     protected function create(){
         try{
             $resp = $this->wc_client->customers->get_by_email($this->email);
-            Garan24::debug($resp);
+            Garan24::debug("Get_by_email .".$resp);
             if(isset($resp->customer)){
                 $this->_jdata = array_merge($this->_jdata,json_decode(json_encode($resp->customer),true));
                 $this->customer_id = $this->id;
@@ -91,35 +102,37 @@ class Customer extends G24Object{
             }
         }
         catch(\Exception $e){
+            Garan24::debug("Get_by_email exception. ".$e->getMessage());
             try{
                 $resp = $this->wc_client->customers->create(["customer"=> [
                     "email"=>$this->email,
                     "password"=>$this->phone,
                     "username"=>$this->email,
                     'billing_address' => [
-                        /*'first_name' => $this->email,
-                        'last_name' => $this->email,
-                        'company' => '',
-                        'address_1' => '',
-                        'address_2' => '',
-                        'city' => '',
-                        'state' => '',
-                        'postcode' => '',*/
+                    //'billing' => [
                         'country' => 'RU',
                         'email' => $this->email,
                         'phone' => $this->phone
-                    ]
+                    ]/*,
+                    'billing' => [
+                        'country' => 'RU',
+                        'email' => $this->email,
+                        'phone' => $this->phone
+                    ]*/
                 ]]);
+                Garan24::debug("creating response. ");
+                Garan24::debug($resp);
                 $this->_jdata = array_merge($this->_jdata,json_decode(json_encode($resp->customer),true));
                 $this->customer_id = $this->id;
             }
             catch(\Exception $e){
+                Garan24::debug("creating exception. ".$e->getMessage());
                 $this->customer_id = 0;
             }
         }//$this->update([]);
     }
     protected function getCustomer(){
-        $sql = "select u.id,u.user_email,um.meta_value,u.id as `customer_id`";
+        $sql = "select u.id,u.user_email,um.meta_value as `phone`,u.id as `customer_id`";
         $sql.= " ,fio.value_data as `fio_middle`";
         $sql.= " ,bd.value_data as `fio_birthday`";
         $sql.= " ,passport.value_data as `passport`";
@@ -135,9 +148,10 @@ class Customer extends G24Object{
         elseif (isset($this->id)) {
             $sql.= " where u.id = '".$this->id."'";
         }
+        Garan24::debug("get customer sql".$sql);
         $user = $this->db->select($sql);
         $this->_jdata = array_merge($this->_jdata,$user);
-        Garan24::debug($this->_jdata["passport"]);
+        Garan24::debug(json_encode($this->_jdata));
         $this->_jdata["passport"] = json_decode($this->_jdata["passport"],true);
     }
 };

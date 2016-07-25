@@ -47,7 +47,7 @@ class Customer extends G24Object{
     public function update($data){
         if(isset($data["passport"])||isset($data["fio"]['middle'])||isset($data["fio"]['birthday'])){
             if(isset($data["passport"])){
-                if(isset($data["passport"]["where"])) $data["passport"]["where"] = preg_replace("/[\"\']+/m","",$data["passport"]["where"]);
+                if(isset($data["passport"]["where"])) $data["passport"]["where"] = preg_replace(["/[\"\']+/m","/^\s+/","/\s+$/"],"",$data["passport"]["where"]);
                 $d = preg_replace("/[\r\n]+/mi","",json_encode($data["passport"],JSON_UNESCAPED_UNICODE));
                 //$d = json_encode($data["passport"],JSON_UNESCAPED_UNICODE);
                 Garan24::debug("PASSPORT DATDA:[".$d."]");
@@ -148,11 +148,12 @@ class Customer extends G24Object{
         elseif (isset($this->id)) {
             $sql.= " where u.id = '".$this->id."'";
         }
-        Garan24::debug("get customer sql".$sql);
+        Garan24::debug("get customer sql [".$sql."]");
         $user = $this->db->select($sql);
         $this->_jdata = array_merge($this->_jdata,$user);
-        Garan24::debug(json_encode($this->_jdata));
+        Garan24::debug("Customer passport: ".$this->_jdata["passport"]);
         $this->_jdata["passport"] = json_decode($this->_jdata["passport"],true);
+
     }
 };
 ?>

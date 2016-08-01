@@ -90,6 +90,14 @@ class Customer extends G24Object{
             ." ".$this->billing_address['last_name'];
         return $str;
     }
+    public function getDeals(){
+        $sql = "select * ";
+        $sql.= "from deals d ";
+        $sql.= "where d.customer_id = ".$this->id;
+        $sql.= " order by d.id desc";
+        $deals = $this->db->select($sql);
+        return $deals;
+    }
     protected function create(){
         try{
             $resp = $this->wc_client->customers->get_by_email($this->email);

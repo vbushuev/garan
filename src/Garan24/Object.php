@@ -3,7 +3,10 @@ namespace Garan24;
 class Object {
     protected $_jdata=[];
     public function __construct($a="{}"){
-        $this->parse($a);
+        if(is_string($a)&&preg_match("/^\{.*\}$/m",$a))
+            $this->parse($a);
+        if(is_array($a))
+            $this->_jdata=array_merge($this->_jdata,$a);
     }
     public function parse($a){
         if(!is_null($a)) $this->_jdata = array_change_key_case(json_decode($a,true),CASE_LOWER);

@@ -15,6 +15,9 @@ class Object {
     public function ___toString(){
         return $this->toJson();
     }
+    public function toArray(){
+        return $this->_jdata;
+    }
     public function toJson(){
         return json_encode($this->_jdata);
     }

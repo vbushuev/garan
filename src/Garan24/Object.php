@@ -33,7 +33,7 @@ class Object {
     public function __get($nc){
         $n=strtolower($nc);
         //if throw new Exception("No such parameter \{{$nc}\}");
-        return (!$this->__isset($n))?$this->_jdata["{$n}"]:"";
+        return ($this->__isset($n))?$this->_jdata["{$n}"]:"";
     }
     public function __set($nc,$v){
         $n=strtolower($nc);

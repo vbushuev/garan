@@ -10,12 +10,10 @@ use \Garan24\Gateway\Ariuspay\Exception as Garan24GatewayAruispayException;
 use \Garan24\Gateway\Ariuspay\Request as Request;
 class CaptureRequest extends Request{
     public function __construct($d){
-        parent::__construct([
-            "operation" => "capture",
-            "fields" => ["login","client_orderid","orderid","control","amount","currency"],
-            "control" => ["login","client_orderid","orderid","merchant_control"],
-            "data" => $d
-        ]);
+        $d["operation"] = "capture";
+        $d["fields"] = ["login","client_orderid","orderid","control","amount","currency"];
+        $d["control"] = ["login","client_orderid","orderid","merchant_control"];
+        parent::__construct($d);
     }
 }
 ?>

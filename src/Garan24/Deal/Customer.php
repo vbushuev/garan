@@ -23,12 +23,7 @@ class Customer extends G24Object{
     public function sync(){
         $resource = new \WC_API_Client_Resource_Customers($this->wc_client);
         $resp=null;
-        try{
-            $this->getCustomer();
-        }
-        catch(\Exception $e){
-            $this->create();
-        }
+
         try{
             $this->get();
         }
@@ -37,6 +32,12 @@ class Customer extends G24Object{
         }
         catch(\Exception $e){
             echo $resp;
+        }
+        try{
+            $this->getCustomer();
+        }
+        catch(\Exception $e){
+            $this->create();
         }
     }
     public function get(){

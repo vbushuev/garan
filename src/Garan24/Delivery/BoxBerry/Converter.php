@@ -12,7 +12,62 @@ class Converter{
             throw new \Exception("Wrong object");
         }
         $this->grn_data = $o;
-        $this->bb_data=[];
+        $c = $o->getCustomer();
+        $this->bb_data=[
+                //'method' => "ParcelCreateForeign",      // Название метода (Обязателен)
+                //'token' => '18455.rvpqeafa',            // Ваш API token (Обязателен)
+            'u_name' => $c->first_name,                     // Имя получателя (Обязателен)
+            'u_surname' =>$c->last_name,                // Фамилия получателя (Обязателен)
+            'u_middlename' => $c->fio_middle,           // Отчество получателя (не обязателен)
+            'u_email' => $c->user_email,           // Электронная почта (не обязателен)
+            'u_phone' => $c->phone,        // Телефон получателя (Обязателен)
+            'u_country_code' => 643,                // Код страны паспорта получателя. По умолчанию 643 - Россия. (Обязателен)
+            'u_pasport' => $c->passport["series"]." ".$c->passport["number"],           // Номер паспорта получателя (Обязателен)
+            'u_passportIssued'=>$c->passport["date"],       // Дата выдачи паспорта (Обязателен)
+            'u_passportIssuedBy'=>$c->passport["where"],               // Кем выдан паспорт (Обязателен)
+            'u_destination_country_code' => '643',     // Код страны назначения (Обязателен)
+            'u_city' => $c->shipping_address["city"],                         // Город получателя (Обязателен)
+            'u_take' => ($o->delivery["id"]==6)?'kd':$c->shipping_address["address_2"],                       // kd если курьерская доставка, или код ПВЗ (Обязателен)
+            'u_post_code' => $c->shipping_address["postcode"],              // XXXXXX - индекс города (не обязателен, если  вид доставки ПВЗ)
+            'u_street' => $c->shipping_address["address_1"], // Адрес получателя (не обязателен, если  вид доставки ПВЗ)
+            'Order' => $o->order->id,                 // Номер заказа Интернет-магазина (не обязателен, в случае если не заполнено, присваивается Sender tracking)
+            //'sender_tracking' => '',                // Номер для отслеживания Интернет-магазина (не обязателен, если не заполнено, присваивается Boxberry tracking)
+            //'add_barcode128' => 'XXXXXXXXXX',       // Баркод Интернет-магазина для печати на этикетке (Вывод на этикетке – EAN, не обязателен)
+            'box' => [
+                'x' => '40',                    // Размеры корбоки в см
+                'y' => '30',
+                'z' => '20',
+                'weight_bruto' => '2000',        // Брутто вес коробки в граммах Обязателен
+                'add_tracking_code' => '',      // Дополнительный трекинг код для личных нужд отправителя]
+                "items"=>[]
+            ]
+        ];
+        foreach($o->order->items as $itm){
+            $bi = [
+                'articul' =>$itm->id,                    // Артикул в магазине (Обязателен)
+                'Manufacturer' => '',               // Производитель (не обязателен, No name, если не заполнено)
+                'model' => $itm->name,                      // Наименование модели (Обязателен)
+                'quantity' => $itm->quantity,                         // Количество (Обязателен)
+                'netto' => '',                          // Вес нетто в граммах (не обязателен)
+                'item_price' => $itm->subtotal,                     // Цена в валюте поставщика (Обязателен)
+                'currency_price' => 'RUB',                 // Валюта поставщика EUR GBP USD RUB. При ошибочном написании или пустом поле считается EUR (Обязателен)
+                'link_web' => $itm->permalink,                          // Ссылка на товар в интернет (не обязателен)
+                'link_foto' => $itm->featured_src,                         // Ссылка на товар в интернет (не обязателен)
+                'country_of_origin' => '',                 // Страна происхождения товара (не обязателен)
+                'invoice' => $o->order->id,               // Номер заказа (Обязателен)
+                'descr_rus' => '',  // Краткое описание товара на русском (не обязателен)
+                'descr_alt' => $itm->description,               // Краткое Описание товара на языке поставщика или на английском (Обязателен)
+                'descr_alt_eng' => true,                   // Если описание на английском языке необходимо передать true
+            ];
+            array_push($this->bb_data["box"] ['items'],$bi);
+        }
+        return $this->bb_data;
+    }
+    public function convertRu($o){
+        if(!$o instanceof Deal) {
+            throw new \Exception("Wrong object");
+        }
+        $this->grn_data = $o;
         //$this->bb_data['updateByTrack']='Трекинг-код ранее созданной посылки';
         $this->bb_data['order_id']=$o->order->internal_order_id;//'ID заказа в ИМ';
         //$this->bb_data['PalletNumber']='Номер палеты';

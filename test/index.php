@@ -10,11 +10,11 @@ $bb = new \Garan24\Delivery\BoxBerry\BoxBerry();
 //echo $deal->getCustomer();
 $con = $d2b->convert($deal);
 //echo json_encode($con,JSON_PRETTY_PRINT);
-//$bbres = json_decode($bb->ParcelCreateForeign($con),true);
+$bbres = json_decode($bb->ParcelCreateForeign($con),true);
 //$bbres = json_decode($bb->ParselCreate($con),true);
-$bbres = json_decode($bb->ListCities(),true);
-if(isset($bbres[0]["err"])) echo "Error: ".$bbres[0]["err"];
+//$bbres = json_decode($bb->ListCities(),true);
+if(isset($bbres["err"])) echo "Error: ".$bbres["err"];
 else {
-    echo json_encode($bbres[0]["result"],JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
+    echo json_encode($bbres["result"],JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
 }
 ?>

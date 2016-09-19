@@ -13,8 +13,8 @@ class WooRequiredObject extends \Garan24\RequiredObject {
     public function getWc(){
         return $this->wc_client;
     }
-    protected function initWC($key,$secret){
-        $domain = "https://garan24.ru";
+    protected function initWC($key,$secret,$dom = "https://garan24.ru"){
+        $domain = $dom;
         $consumer_key = $key;//"ck_8ff71be2b15d1dddbe939fb30e7fd0dfc6419ca2";
         $consumer_secret = $secret;//"cs_735d73f347e10723402539ac503a9df8413f6287";
         $options = [

@@ -88,7 +88,7 @@ class Deal extends G24Object{
         $this->raw_request = $a;
         $a = is_array($a)?json_encode($a):$a;
         $this->_jdata = array_change_key_case(json_decode($a,true),CASE_LOWER);
-        $this->initWC($this->x_key,$this->x_secret);
+        $this->initWC($this->x_key,$this->x_secret,"http://gauzymall.com");
         $this->order = new Order($this->order,$this->wc_client);
         $this->_loaded = true;
     }
@@ -99,6 +99,7 @@ class Deal extends G24Object{
         $sql.= ",pt.name as payment_type_name,pt.desc as payment_type_desc ";
         $sql.= ",d.shipping_cost as `shipping_cost`";
         $sql.= ",ds.status as `status`";
+        $sql.= ",d.service_fee";
         $sql.= " from deals d ";
         $sql.= " join shops s on s.id=d.shop_id";
         $sql.= " join woocommerce_api_keys wak on wak.key_id = s.api_key_id";
@@ -200,6 +201,10 @@ class Deal extends G24Object{
             $sql = "update deals set status=(select id from garan24_deal_statuses where status='".$data["status"]."') where id = ".$this->deal["id"];
             $this->db->update($sql);
         }
+        if(isset($data["service-fee"])){
+            $sql = "update deals set service_fee=".$data["service-fee"]." where id = ".$this->deal["id"];
+            $this->db->update($sql);
+        }
     }
     public function getCustomer(){
         if(!$this->_loaded)return;
@@ -292,7 +297,7 @@ class Deal extends G24Object{
     }
     protected function getOrder($id){
         if(!$this->_loaded)return;
-        $this->initWC($this->x_key,$this->x_secret);
+        $this->initWC($this->x_key,$this->x_secret,"http://gauzymall.com");
         $this->order = new Order('{"id":"'.$id.'"}',$this->wc_client);
         $this->order->get();
     }

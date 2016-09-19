@@ -3,7 +3,7 @@ require_once("test.php");
 
 \Garan24\Garan24::$DB["host"]="151.248.117.239";
 
-$deal = new \Garan24\Deal\Deal(["id"=>"5824"]);
+$deal = new \Garan24\Deal\Deal(["id"=>"5821"]);
 $d2b = new \Garan24\Delivery\BoxBerry\Converter();
 $bb = new \Garan24\Delivery\BoxBerry\BoxBerry();
 //echo $deal;

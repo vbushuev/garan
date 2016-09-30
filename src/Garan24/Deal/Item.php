@@ -35,7 +35,7 @@ class Item extends G24Object{
             $this->create();
         }
         catch(\Exception $e){
-            echo $resp." -- ". $e->getMessage();
+            echo json_encode($resp)." -- ". $e->getMessage();
         }
 
     }

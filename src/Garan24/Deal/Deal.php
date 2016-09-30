@@ -8,11 +8,11 @@ use \Garan24\Garan24 as Garan24;
 
 class Deal extends G24Object{
     protected $_loaded = false;
-    protected $shop;
-    protected $customer;
+    protected $shop = false;
+    protected $customer = false;
     protected $db;
     protected $redirect_url = "https://service.garan24.ru/checkout/";
-    protected $deal;
+    protected $deal = false;
     protected $raw_request="";
     public function __construct($a=[]){
         parent::__construct([
@@ -88,7 +88,8 @@ class Deal extends G24Object{
         $this->raw_request = $a;
         $a = is_array($a)?json_encode($a):$a;
         $this->_jdata = array_change_key_case(json_decode($a,true),CASE_LOWER);
-        $this->initWC($this->x_key,$this->x_secret,"http://gauzymall.com");
+        $this->getKeyAndSecret();
+        $this->initWC($this->x_key,$this->x_secret,$this->woo_api_domain);
         $this->order = new Order($this->order,$this->wc_client);
         $this->_loaded = true;
     }
@@ -100,6 +101,7 @@ class Deal extends G24Object{
         $sql.= ",d.shipping_cost as `shipping_cost`";
         $sql.= ",ds.status as `status`";
         $sql.= ",d.service_fee";
+        $sql.= ",s.test as `istest`";
         $sql.= " from deals d ";
         $sql.= " join shops s on s.id=d.shop_id";
         $sql.= " join woocommerce_api_keys wak on wak.key_id = s.api_key_id";
@@ -208,7 +210,7 @@ class Deal extends G24Object{
     }
     public function getCustomer(){
         if(!$this->_loaded)return;
-        if(!$this->customer&&is_object($this->customer)&&($this->customer instanceof Customer)) return $this->customer;
+        if(($this->customer!==false)&&is_object($this->customer)&&($this->customer instanceof Customer)) return $this->customer;
         $this->customer = new Customer('{"id":"'.$this->order->customer_id.'","customer_id":"'.$this->order->customer_id.'"}',$this->wc_client);
         $this->customer->sync();
         Garan24::debug("Customer is : ". json_encode($this->customer->toArray()));
@@ -270,7 +272,8 @@ class Deal extends G24Object{
     }
     protected function getShop(){
         if(!$this->_loaded)return;
-        $sql = "select s.id,s.name,s.link,s.description,s.api_key_id,wak.user_id from woocommerce_api_keys wak";
+        if($this->shop!==false) return;
+        $sql = "select s.id,s.name,s.link,s.description,s.api_key_id,wak.user_id,s.test as istest from woocommerce_api_keys wak";
         $sql.= " join shops s on s.api_key_id = wak.key_id";
         $sql.= " where wak.consumer_secret = '".$this->x_secret."'";
         $this->shop = $this->db->select($sql);
@@ -297,9 +300,30 @@ class Deal extends G24Object{
     }
     protected function getOrder($id){
         if(!$this->_loaded)return;
+        if(($this->order!==false)&&is_object($this->order)&&($this-Ющквук instanceof Order))return;
         $this->initWC($this->x_key,$this->x_secret,"http://gauzymall.com");
         $this->order = new Order('{"id":"'.$id.'"}',$this->wc_client);
         $this->order->get();
+    }
+    protected function getKeyAndSecret(){
+        $this->_jdata["woo_api_domain"] = 'http://gauzymall.com';
+        if(!isset($this->domain_id)) return false;
+        $sql = "select s.consumer_key,wak.consumer_secret, s.name ,s.test as `istest`";
+        $sql.= "from shops s";
+        $sql.= " join woocommerce_api_keys wak on wak.key_id = s.api_key_id";
+        $sql.= " where s.id =".$this->domain_id;
+        try{
+            $this->deal = $this->db->select($sql);
+            $this->x_key = $this->deal["consumer_key"];
+            $this->x_secret = $this->deal["consumer_secret"];
+            //$this->_jdata["woo_api_domain"] = ($this->deal["istest"]==1)?'http://xrayshopping.ru':'http://gauzymall.com';
+            return true;
+        }
+        catch(\Exception $e){
+            Garan24::debug("No key [#{$this->doain_id}] found.".$e->getMessage());
+            return false;
+        }
+        return false;
     }
 };
 ?>

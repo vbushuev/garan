@@ -10,12 +10,10 @@ use \Garan24\Gateway\Ariuspay\Exception as Garan24GatewayAruispayException;
 use \Garan24\Gateway\Ariuspay\Request as Request;
 class CreateCardRefRequest extends Request{
     public function __construct($d){
-        parent::__construct([
-            "operation" => "create-card-ref",
-            "fields" => ["login","client_orderid","orderid","control"],
-            "control" => ["login","client_orderid","orderid","merchant_control"],
-            "data" => $d
-        ]);
+        $d["operation"] = "create-card-ref";
+        $d["fields"] = ["login","client_orderid","orderid","control"];
+        $d["control"] = ["login","client_orderid","orderid","merchant_control"];
+        parent::__construct($d);
     }
 }
 ?>

@@ -189,10 +189,18 @@ class Deal extends G24Object{
             ]);
         }
         if(isset($data["card-ref-id"])){
-            $sql = "insert into garan24_cardrefs (card_ref_id) values('".$data["card-ref-id"]."')";
-            $this->db->insert($sql);
-            $sql = "insert into garan24_user_cardref (user_id,card_ref_id) values(".$this->customer->customer_id.",last_insert_id())";
-            $this->db->insert($sql);
+            try{
+                $sql = "select id as card_ref_id from garan24_cardrefs where card_ref_id = '".$data["card-ref-id"]."'";
+                $d = $this->db->select($sql);
+                $sql = "insert into garan24_user_cardref (user_id,card_ref_id,deal_id) values(".$this->customer->customer_id.",".$d["card_ref_id"].",".$this->deal["id"].")";
+                $this->db->insert($sql);
+            }
+            catch(\Exception $e){
+                $sql = "insert into garan24_cardrefs (card_ref_id) values('".$data["card-ref-id"]."')";
+                $this->db->insert($sql);
+                $sql = "insert into garan24_user_cardref (user_id,card_ref_id,deal_id) values(".$this->customer->customer_id.",last_insert_id(),".$this->deal["id"].")";
+                $this->db->insert($sql);
+            }
         }
         if(isset($data["shipping_cost"])){
             $sql = "update deals set shipping_cost='".$data["shipping_cost"]."' where id = ".$this->deal["id"];

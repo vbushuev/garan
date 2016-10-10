@@ -11,7 +11,7 @@ class Deal extends G24Object{
     protected $shop = false;
     protected $customer = false;
     protected $db;
-    protected $redirect_url = "https://service.garan24.ru/checkout/";
+    protected $redirect_url = "http://l.gauzymall.com/checkout/";
     protected $deal = false;
     protected $raw_request="";
     public function __construct($a=[]){
@@ -57,7 +57,7 @@ class Deal extends G24Object{
             $ret->id = $this->order->id;
             $ret->code = 0;
             $ret->error = 0;
-            $ret->redirect_url = "https://service.garan24.ru/checkout/?id=".$this->order->id;
+            $ret->redirect_url = "http://l.gauzymall.com/checkout/?id=".$this->order->id;
         }
         catch(Exception $e){
             $ret->code = 500;

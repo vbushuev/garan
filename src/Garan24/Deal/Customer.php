@@ -52,6 +52,7 @@ class Customer extends G24Object{
                 $d = preg_replace("/[\r\n]+/mi","",json_encode($data["passport"],JSON_UNESCAPED_UNICODE));
                 //$d = json_encode($data["passport"],JSON_UNESCAPED_UNICODE);
                 Garan24::debug("PASSPORT DATDA:[".$d."]");
+                $this->_jdata["passport"] = $data["passport"];
                 if($this->db->exists("select 1 from garan24_usermeta where user_id='{$this->customer_id}' and value_key='passport'")){
                     $this->db->update("update garan24_usermeta set value_data = '{$d}' where user_id='{$this->customer_id}' and value_key='passport'");
                 }else{

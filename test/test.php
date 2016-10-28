@@ -47,4 +47,48 @@ function makeTimeout($timeout){
     sleep($timeout);
     return $timeout;
 }
+$ariuspay = ["akbars" =>[
+    "SaleRequest" => [
+        "url" => "https://gate.payneteasy.com/paynet/api/v2/",
+        "endpoint" => "2879",
+        "merchant_key" => "1398E8C3-3D93-44BF-A14A-6B82D3579402",
+        "merchant_login" => "garan24"
+    ],
+    "RebillRequest" => [
+        "url" => "https://gate.payneteasy.com/paynet/api/v2/",
+        "endpoint" => "3058",
+        "merchant_key" => "1398E8C3-3D93-44BF-A14A-6B82D3579402",
+        "merchant_login" => "garan24"
+    ],
+    "StatusRequest" => [
+        "url" => "https://gate.payneteasy.com/paynet/api/v2/",
+        "endpoint" => "3058",
+        "merchant_key" => "1398E8C3-3D93-44BF-A14A-6B82D3579402",
+        "merchant_login" => "garan24"
+    ],
+    "CaptureRequest" => [
+        "url" => "https://gate.payneteasy.com/paynet/api/v2/",
+        "endpoint" => "2879",
+        "merchant_key" => "1398E8C3-3D93-44BF-A14A-6B82D3579402",
+        "merchant_login" => "garan24"
+    ],
+    "PreauthRequest" => [
+        "url" => "https://gate.payneteasy.com/paynet/api/v2/",
+        "endpoint" => "3028",
+        "merchant_key" => "1398E8C3-3D93-44BF-A14A-6B82D3579402",
+        "merchant_login" => "garan24"
+    ],
+    "CreateCardRef_RIB" => [
+        "url" => "https://gate.payneteasy.com/paynet/api/v2/",
+        "endpoint" => "3028",
+        "merchant_key" => "1398E8C3-3D93-44BF-A14A-6B82D3579402",
+        "merchant_login" => "garan24"
+    ],
+    "CreateCardRef" => [
+        "url" => "https://gate.payneteasy.com/paynet/api/v2/",
+        "endpoint" => "2879",
+        "merchant_key" => "1398E8C3-3D93-44BF-A14A-6B82D3579402",
+        "merchant_login" => "garan24"
+    ]
+]];
 ?>

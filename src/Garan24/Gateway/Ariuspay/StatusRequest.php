@@ -8,11 +8,11 @@
 namespace Garan24\Gateway\Ariuspay;
 use \Garan24\Gateway\Ariuspay\Exception as Garan24GatewayAruispayException;
 use \Garan24\Gateway\Ariuspay\Request as Request;
-class RebillRequest extends Request{
+class StatusRequest extends Request{
     public function __construct($d){
-        $d["operation"] = "make-rebill";
-        $d["fields"] = ["client_orderid","login","order_desc","cardrefid","amount","currency","enumerate_amounts","cvv2","ipaddress","control","redirect_url","server_callback_url"];
-        $d["control"] = ["login","client_orderid","cardrefid","amount","currency","merchant_control"];
+        $d["operation"] = "status";
+        $d["fields"] = ["client_orderid","login","orderid","by-request-sn","control"];
+        $d["control"] = ["login","client_orderid","orderid","merchant_control"];
         parent::__construct($d);
     }
 }

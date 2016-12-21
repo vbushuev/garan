@@ -11,7 +11,7 @@ class Deal extends G24Object{
     protected $shop = false;
     protected $customer = false;
     protected $db;
-    protected $redirect_url = "http://l.gauzymall.com/checkout/";
+    protected $redirect_url = "https://checkout.gauzymall.com";
     protected $deal = false;
     protected $raw_request="";
     public function __construct($a=[]){
@@ -308,8 +308,8 @@ class Deal extends G24Object{
     }
     protected function getOrder($id){
         if(!$this->_loaded)return;
-        if(($this->order!==false)&&is_object($this->order)&&($this-Ющквук instanceof Order))return;
-        $this->initWC($this->x_key,$this->x_secret,"http://gauzymall.com");
+        if(($this->order!==false)&&is_object($this->order)&&($this->Order instanceof Order))return;
+        $this->initWC($this->x_key,$this->x_secret,"https://www.gauzymall.com");
         $this->order = new Order('{"id":"'.$id.'"}',$this->wc_client);
         $this->order->get();
     }

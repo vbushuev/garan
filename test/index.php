@@ -7,20 +7,31 @@ require_once("test.php");
 \Garan24\Garan24::$DB["schema"] = "gauzymall";
 \Garan24\Garan24::$DB["user"] = "gauzymall";
 \Garan24\Garan24::$DB["pass"] = "D6a8O2e1";
-$obj = [
-    "client_orderid" => "6368",
-    "order_desc" => "Post payment order test",
-    "cardrefid" => "4037580",
-    "amount" => "3800",
-    "currency" => "RUB" ,
-    //"enumerate_amounts","cvv2",
-    "ipaddress" => "213.87.145.97",//$_SERVER['REMOTE_ADDR'],
-    "redirect_url" => "home.bs2"
-    //"control","redirect_url","server_callback_url"
-];
-
-$crdData = array_merge($ariuspay["akbars"]["RebillRequest"],["data"=>$obj]);
+$db = new \Garan24\Store\DBConnector();
+$order = 7532;
+//$order = 8500;
+//$order = 7700;
+$dd = $db->select("
+select
+	d.internal_order_id as 'client_orderid',
+    'Post payment for order #".$order."' as 'order_desc',
+    cr.card_ref_id as 'cardrefid',
+    d.amount+d.service_fee+d.shipping_cost as 'amount',
+    'RUB' as 'currency',
+    '213.87.145.97' as 'ipaddress',
+    'gauzymall.com' as 'redirect_url'
+from garan24_cardrefs cr
+	join garan24_user_cardref ucr on ucr.card_ref_id = cr.id
+    join userinfo u on u.user_id = ucr.user_id
+    join deals d on d.id = ucr.deal_id
+where d.internal_order_id =".$order);
+//$obj = ["client_orderid" => "5653","order_desc" => "Post payment for order","cardrefid" => "4009091","amount" => "3405.37","currency" => "RUB" ,"ipaddress" => "213.87.145.97","redirect_url" => "gauzymall.com"];
+//print_r($dd);exit;
+$crdData = array_merge($ariuspay["akbars"]["RebillRequest"],["data"=>$dd]);
 $crdData["data"]["login"] = $crdData["merchant_login"];
+
+//print_r($obj);
+//print_r($dd);exit;
 $request = new \Garan24\Gateway\Ariuspay\RebillRequest($crdData);
 $connector = new \Garan24\Gateway\Ariuspay\Connector();
 $connector->setRequest($request);
@@ -29,7 +40,7 @@ $response =  $connector->getResponse();
 
 $field = "paynet-order-id";
 $stat = array_merge($ariuspay["akbars"]["StatusRequest"],["data"=> [
-    "client_orderid"=>$obj["client_orderid"],
+    "client_orderid"=>$dd["client_orderid"],
     "orderid" => $response->$field,
     "login" =>$crdData["merchant_login"]
 ]]);
@@ -45,4 +56,7 @@ while(preg_replace("/[\r\n\s]/m","",$response->status) == "processing"){
     $response =  $connector->getResponse();
 }
 echo "\n\tResponse status is[".preg_replace("/[\r\n\s]/m","",$response->status)."]\n";
+if(preg_replace("/[\r\n\s]/m","",$response->status) == 'approved'){
+	$db->insert("update deals set status=(select id from garan24_deal_statuses where status = 'payed') where internal_order_id = ".$order);
+}
 ?>

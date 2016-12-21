@@ -27,7 +27,8 @@ class Item extends G24Object{
         $resource = new \WC_API_Client_Resource_Products($this->wc_client);
         $resp=null;
         try{
-            $resp = $resource->get($this->product_id);
+            $resp = (isset($this->sku))?$resource->get_by_sku($this->sku):$resource->get($this->product_id);
+            //$resp = $resource->get($this->product_id);
             $this->_jdata = array_merge($this->_jdata,json_decode(json_encode($resp->product),true));
             $this->product_id = $resp->product->id;
         }

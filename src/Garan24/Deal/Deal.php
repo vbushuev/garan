@@ -22,7 +22,8 @@ class Deal extends G24Object{
             "response_url",
             "payment",
             "delivery",
-            "order"
+            "order",
+            "currency"
         ]);
         $this->db = new DBConnector();
         if(is_array($a)&&count($a)){
@@ -38,6 +39,7 @@ class Deal extends G24Object{
     public function sync(){
         $ret = new DealResponse();
         try{
+            $this->getKeyAndSecret();
             $this->getShop();
         }
         catch(Exception $e){
@@ -57,7 +59,7 @@ class Deal extends G24Object{
             $ret->id = $this->order->id;
             $ret->code = 0;
             $ret->error = 0;
-            $ret->redirect_url = "http://l.gauzymall.com/checkout/?id=".$this->order->id;
+            $ret->redirect_url = "https://checkout.gauzymall.com/?id=".$this->order->id;
         }
         catch(Exception $e){
             $ret->code = 500;
@@ -102,6 +104,7 @@ class Deal extends G24Object{
         $sql.= ",ds.status as `status`";
         $sql.= ",d.service_fee";
         $sql.= ",s.test as `istest`";
+        $sql.= ",d.currency as `currency`";
         $sql.= " from deals d ";
         $sql.= " join shops s on s.id=d.shop_id";
         $sql.= " join woocommerce_api_keys wak on wak.key_id = s.api_key_id";
@@ -314,7 +317,7 @@ class Deal extends G24Object{
         $this->order->get();
     }
     protected function getKeyAndSecret(){
-        $this->_jdata["woo_api_domain"] = 'http://gauzymall.com';
+        $this->_jdata["woo_api_domain"] = 'https://www.gauzymall.com';
         if(!isset($this->domain_id)) return false;
         $sql = "select s.consumer_key,wak.consumer_secret, s.name ,s.test as `istest`";
         $sql.= "from shops s";

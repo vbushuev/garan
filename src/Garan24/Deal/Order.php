@@ -23,12 +23,37 @@ class Order extends G24Object{
         $data = $this->_jdata;
         unset($data["items"]);
         $data["line_items"] = [];
+
         foreach($this->items as $item){
             $item->sync();
             array_push($data["line_items"],$item->toArray());
         }
         $resp=$resource->create($data);
         $this->id= $resp->order->id;
+
+        $rrr = json_decode(json_encode($resp->order),true);
+        Garan24::debug("Created order is:". json_encode($resp->order));
+        $updateItems = [];
+        foreach ($rrr["line_items"] as $li) {
+            foreach($data["line_items"] as $ui){
+                if($ui["product_id"]==$li["product_id"]){
+                    $updateItems[] = [
+                        "id" =>$li["id"],
+                        "quantity"=>$ui["quantity"],
+                        "product_id"=>$ui["product_id"],
+                        "price"=>$ui["sale_price"],
+                        "total"=>$ui["sale_price"]*$ui["quantity"],
+                        "subtotal"=>$ui["sale_price"]*$ui["quantity"]
+                    ];
+                    break;
+                }
+            }
+        }
+        $updateOrder = [
+            "line_items" => $updateItems
+        ];
+
+        $this->update($updateOrder);
     }
     public function get(){
         if(!isset($this->id)){
@@ -51,6 +76,7 @@ class Order extends G24Object{
     }
     public function update($data){
         $resource = new \WC_API_Client_Resource_Orders($this->wc_client);
+        Garan24::debug("Update order is:". json_encode($data));
         $resp = $resource->update($this->id,$data);
         $this->_jdata = array_merge($this->_jdata,json_decode(json_encode($resp->order),true));
         if(isset($this->line_items)){

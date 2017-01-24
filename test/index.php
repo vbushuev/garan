@@ -8,9 +8,8 @@ require_once("test.php");
 \Garan24\Garan24::$DB["user"] = "gauzymall";
 \Garan24\Garan24::$DB["pass"] = "D6a8O2e1";
 $db = new \Garan24\Store\DBConnector();
-$order = 7532;
-//$order = 8500;
-//$order = 7700;
+$order = "9512";
+//$order = 9763;
 $dd = $db->select("
 select
 	d.internal_order_id as 'client_orderid',

@@ -68,6 +68,8 @@ class Order extends G24Object{
             foreach($this->line_items as $item){
                 $i = new Item($item,$this->wc_client);
                 $i->sync();
+                $i->sale_price = $item["price"];
+                $i->regular_price = $item["price"];
                 array_push($items, $i);
             }
             $this->items = $items;
